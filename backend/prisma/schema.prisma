@@ -1,0 +1,190 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Business {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  logo         String?
+  description  String?
+  primaryColor String   @default("#16a34a")
+  accentColor  String   @default("#15803d")
+  phone        String?
+  email        String?
+  website      String?
+  address      String?
+  city         String?
+  country      String   @default("Sri Lanka")
+  currency     String   @default("LKR")
+  branches     Branch[]
+  admins       Admin[]
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("businesses")
+}
+
+model Branch {
+  id           String    @id @default(cuid())
+  businessId   String
+  business     Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name         String
+  address      String
+  city         String
+  phone        String?
+  email        String?
+  mapUrl       String?
+  openTime     String    @default("06:00")
+  closeTime    String    @default("22:00")
+  slotDuration Int       @default(60)
+  isActive     Boolean   @default(true)
+  courts       Court[]
+  bookings     Booking[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("branches")
+}
+
+model Sport {
+  id          String   @id @default(cuid())
+  name        String
+  icon        String?
+  description String?
+  color       String   @default("#16a34a")
+  courts      Court[]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("sports")
+}
+
+model Court {
+  id           String    @id @default(cuid())
+  branchId     String
+  branch       Branch    @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  sportId      String
+  sport        Sport     @relation(fields: [sportId], references: [id])
+  name         String
+  description  String?
+  image        String?
+  pricePerHour Decimal   @db.Decimal(10, 2)
+  minDuration  Int       @default(60)
+  maxDuration  Int       @default(120)
+  isActive     Boolean   @default(true)
+  bookings     Booking[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("courts")
+}
+
+model Customer {
+  id          String    @id @default(cuid())
+  name        String
+  email       String?   @unique
+  phone       String?   @unique
+  password    String?
+  googleId    String?   @unique
+  avatarUrl   String?
+  isVerified  Boolean   @default(false)
+  totalSpent  Decimal   @default(0) @db.Decimal(12, 2)
+  visitCount  Int       @default(0)
+  bookings    Booking[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("customers")
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  bookingRef  String        @unique
+  branchId    String
+  branch      Branch        @relation(fields: [branchId], references: [id])
+  courtId     String
+  court       Court         @relation(fields: [courtId], references: [id])
+  customerId  String
+  customer    Customer      @relation(fields: [customerId], references: [id])
+  date        DateTime      @db.Date
+  startTime   String
+  endTime     String
+  duration    Int
+  totalAmount Decimal       @db.Decimal(10, 2)
+  status      BookingStatus @default(PENDING)
+  notes       String?
+  payment     Payment?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([branchId, date])
+  @@index([courtId, date])
+  @@map("bookings")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  bookingId     String        @unique
+  booking       Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  amount        Decimal       @db.Decimal(10, 2)
+  method        PaymentMethod @default(CASH)
+  status        PaymentStatus @default(PENDING)
+  transactionId String?
+  gatewayRef    String?
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+enum PaymentMethod {
+  ONLINE
+  CASH
+  CARD
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Admin {
+  id         String    @id @default(cuid())
+  businessId String
+  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name       String
+  email      String    @unique
+  password   String
+  role       AdminRole @default(STAFF)
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("admins")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  STAFF
+}
