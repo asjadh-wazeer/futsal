@@ -1,0 +1,144 @@
+import { Controller, Get, Post, Patch, Put, Delete, Param, Body, Query, UseGuards, Request } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { OwnerService } from './owner.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
+@ApiTags('Owner')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+@Controller('owner')
+export class OwnerController {
+  constructor(private service: OwnerService) {}
+
+  @Get('dashboard')
+  getDashboard(@Request() req) {
+    return this.service.getDashboard(req.user.businessId);
+  }
+
+  @Get('analytics')
+  getAnalytics(
+    @Request() req,
+    @Query('period') period: string,
+    @Query('from') from: string,
+    @Query('to') to: string,
+  ) {
+    return this.service.getAnalytics(req.user.businessId, { period, from, to });
+  }
+
+  @Get('courts')
+  getCourts(@Request() req) {
+    return this.service.getCourts(req.user.businessId);
+  }
+
+  @Post('courts')
+  createCourt(@Request() req, @Body() body: any) {
+    return this.service.createCourt(req.user.businessId, body);
+  }
+
+  @Get('courts/:id')
+  getCourt(@Request() req, @Param('id') id: string) {
+    return this.service.getCourt(id, req.user.businessId);
+  }
+
+  @Patch('courts/:id')
+  updateCourt(@Request() req, @Param('id') id: string, @Body() body: any) {
+    return this.service.updateCourt(id, req.user.businessId, body);
+  }
+
+  @Get('courts/:id/pricing')
+  getPricingRules(@Request() req, @Param('id') id: string) {
+    return this.service.getPricingRules(id, req.user.businessId);
+  }
+
+  @Post('courts/:id/pricing')
+  createPricingRule(@Request() req, @Param('id') id: string, @Body() body: any) {
+    return this.service.createPricingRule(id, req.user.businessId, body);
+  }
+
+  @Patch('courts/:courtId/pricing/:ruleId')
+  updatePricingRule(
+    @Request() req,
+    @Param('ruleId') ruleId: string,
+    @Body() body: any,
+  ) {
+    return this.service.updatePricingRule(ruleId, req.user.businessId, body);
+  }
+
+  @Delete('courts/:courtId/pricing/:ruleId')
+  deletePricingRule(@Request() req, @Param('ruleId') ruleId: string) {
+    return this.service.deletePricingRule(ruleId, req.user.businessId);
+  }
+
+  @Get('courts/:id/schedule')
+  getSchedule(@Request() req, @Param('id') id: string) {
+    return this.service.getSchedule(id, req.user.businessId);
+  }
+
+  @Put('courts/:id/schedule')
+  upsertSchedule(@Request() req, @Param('id') id: string, @Body() body: { schedules: any[] }) {
+    return this.service.upsertSchedule(id, req.user.businessId, body.schedules);
+  }
+
+  @Get('bookings')
+  getBookings(
+    @Request() req,
+    @Query('status') status: string,
+    @Query('date') date: string,
+    @Query('search') search: string,
+    @Query('courtId') courtId: string,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    return this.service.getBookings(req.user.businessId, {
+      status, date, search, courtId,
+      page: page ? parseInt(page) : 1,
+      limit: limit ? parseInt(limit) : 20,
+    });
+  }
+
+  @Patch('bookings/:id/status')
+  updateBookingStatus(@Request() req, @Param('id') id: string, @Body() body: { status: string }) {
+    return this.service.updateBookingStatus(id, req.user.businessId, body.status);
+  }
+
+  @Get('branches')
+  getBranches(@Request() req) {
+    return this.service.getBranches(req.user.businessId);
+  }
+
+  @Post('branches')
+  createBranch(@Request() req, @Body() body: any) {
+    return this.service.createBranch(req.user.businessId, body);
+  }
+
+  @Patch('branches/:id')
+  updateBranch(@Request() req, @Param('id') id: string, @Body() body: any) {
+    return this.service.updateBranch(id, req.user.businessId, body);
+  }
+
+  @Get('sports')
+  getSports() {
+    return this.service.getSports();
+  }
+
+  // Owner account management (accessible by SUPER_ADMIN)
+  @Post('manage/owners')
+  createOwner(@Body() body: any) {
+    return this.service.createOwner(body);
+  }
+
+  @Get('manage/owners')
+  getOwners() {
+    return this.service.getOwners();
+  }
+
+  @Patch('manage/owners/:id/toggle')
+  toggleOwnerStatus(@Param('id') id: string) {
+    return this.service.toggleOwnerStatus(id);
+  }
+
+  @Get('manage/businesses')
+  getBusinesses() {
+    return this.service.getBusinesses();
+  }
+}

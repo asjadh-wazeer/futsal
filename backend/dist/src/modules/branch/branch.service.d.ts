@@ -2,7 +2,32 @@ import { PrismaService } from '../../prisma/prisma.service';
 export declare class BranchService {
     private prisma;
     constructor(prisma: PrismaService);
-    findAll(businessId?: string): Promise<({
+    findAll(businessId?: string, search?: string, sportId?: string): Promise<({
+        courts: ({
+            sports: {
+                id: string;
+                name: string;
+                description: string | null;
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                icon: string | null;
+                color: string;
+            }[];
+        } & {
+            id: string;
+            name: string;
+            description: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            branchId: string;
+            image: string | null;
+            pricePerHour: import("@prisma/client/runtime/library").Decimal;
+            size: string | null;
+            minDuration: number;
+            maxDuration: number;
+        })[];
         _count: {
             courts: number;
             bookings: number;
@@ -25,7 +50,7 @@ export declare class BranchService {
     })[]>;
     findOne(id: string): Promise<{
         courts: ({
-            sport: {
+            sports: {
                 id: string;
                 name: string;
                 description: string | null;
@@ -34,7 +59,7 @@ export declare class BranchService {
                 updatedAt: Date;
                 icon: string | null;
                 color: string;
-            };
+            }[];
         } & {
             id: string;
             name: string;
@@ -43,9 +68,9 @@ export declare class BranchService {
             createdAt: Date;
             updatedAt: Date;
             branchId: string;
-            sportId: string;
             image: string | null;
             pricePerHour: import("@prisma/client/runtime/library").Decimal;
+            size: string | null;
             minDuration: number;
             maxDuration: number;
         })[];
@@ -65,16 +90,7 @@ export declare class BranchService {
         closeTime: string;
         slotDuration: number;
     }>;
-    findSportsByBranch(branchId: string): Promise<{
-        id: string;
-        name: string;
-        description: string | null;
-        isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
-        icon: string | null;
-        color: string;
-    }[]>;
+    findSportsByBranch(branchId: string): Promise<any[]>;
     create(businessId: string, data: any): Promise<{
         id: string;
         name: string;

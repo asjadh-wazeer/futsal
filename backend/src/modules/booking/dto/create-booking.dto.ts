@@ -40,4 +40,9 @@ export class CreateBookingDto {
   @IsOptional()
   @IsString()
   paymentMethod?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  sportId?: string;
 }

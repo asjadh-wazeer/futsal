@@ -53,6 +53,7 @@ export declare class PaymentController {
         createdAt: Date;
         updatedAt: Date;
         branchId: string;
+        sportId: string | null;
         bookingRef: string;
         courtId: string;
         customerId: string;

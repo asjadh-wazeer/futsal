@@ -9,8 +9,12 @@ export class BranchController {
   constructor(private service: BranchService) {}
 
   @Get()
-  findAll(@Query('businessId') businessId?: string) {
-    return this.service.findAll(businessId);
+  findAll(
+    @Query('businessId') businessId?: string,
+    @Query('search') search?: string,
+    @Query('sportId') sportId?: string,
+  ) {
+    return this.service.findAll(businessId, search, sportId);
   }
 
   @Get(':id')

@@ -12,7 +12,7 @@ import dayjs from 'dayjs';
 export default function CustomerDetailsPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { selectedBranch, selectedCourt, selectedDate, selectedSlot } = useSelector((s: RootState) => s.booking);
+  const { selectedBranch, selectedCourt, selectedDate, selectedSlot, selectedSport } = useSelector((s: RootState) => s.booking);
   const { token: customerToken, customer } = useSelector((s: RootState) => s.customerAuth);
 
   const isLoggedIn = !!customerToken && !!customer;
@@ -59,7 +59,7 @@ export default function CustomerDetailsPage() {
     try {
       const res = await publicApi.createBooking({
         courtId: selectedCourt.id,
-        date: selectedDate,
+        date: dateToSend,
         startTime: selectedSlot.time,
         endTime: selectedSlot.endTime,
         customerName: form.name,
@@ -67,6 +67,7 @@ export default function CustomerDetailsPage() {
         customerEmail: form.email || undefined,
         notes: form.notes || undefined,
         paymentMethod: 'CASH',
+        sportId: selectedSport?.id || selectedCourt.sports?.[0]?.id,
       });
       dispatch(setCompletedBooking(res.data));
       navigate(`/booking/confirm/${res.data.bookingRef}`);
@@ -77,7 +78,8 @@ export default function CustomerDetailsPage() {
     }
   };
 
-  const displayDate = dayjs(selectedDate).format('dddd, MMMM D, YYYY');
+  const dateToSend = selectedDate || dayjs().format('YYYY-MM-DD');
+  const displayDate = dayjs(dateToSend).format('dddd, MMMM D, YYYY');
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
@@ -205,7 +207,9 @@ export default function CustomerDetailsPage() {
                 <span className="text-2xl">🏟️</span>
                 <div>
                   <p className="font-semibold text-gray-900">{selectedCourt.name}</p>
-                  <p className="text-gray-500">{selectedCourt.sport.name}</p>
+                  <p className="text-gray-500">
+                    {selectedSport?.name || selectedCourt.sports?.[0]?.name || 'Multi-sport'}
+                  </p>
                 </div>
               </div>
               <div className="border-t border-gray-200 pt-3 space-y-2 text-gray-600">

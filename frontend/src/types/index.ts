@@ -40,16 +40,40 @@ export interface Sport {
 export interface Court {
   id: string;
   branchId: string;
-  sportId: string;
-  sport: Sport;
+  sports: Sport[];
   branch?: Branch;
   name: string;
   description?: string;
   image?: string;
   pricePerHour: number;
+  size?: string;
   minDuration: number;
   maxDuration: number;
   isActive: boolean;
+  pricingRules?: PricingRule[];
+  schedules?: CourtSchedule[];
+  _count?: { bookings: number };
+}
+
+export interface PricingRule {
+  id: string;
+  courtId: string;
+  name: string;
+  pricePerHour: number;
+  dayType: 'ALL' | 'WEEKDAY' | 'WEEKEND';
+  startHour: number;
+  endHour: number;
+  priority: number;
+  isActive: boolean;
+}
+
+export interface CourtSchedule {
+  id?: string | null;
+  courtId: string;
+  dayOfWeek: number;
+  openTime: string;
+  closeTime: string;
+  isOpen: boolean;
 }
 
 export interface Customer {
@@ -72,6 +96,8 @@ export interface Booking {
   court: Court;
   customerId: string;
   customer: Customer;
+  sportId?: string;
+  sport?: Sport;
   date: string;
   startTime: string;
   endTime: string;
@@ -103,12 +129,14 @@ export interface Admin {
   id: string;
   name: string;
   email: string;
-  role: 'SUPER_ADMIN' | 'ADMIN' | 'STAFF';
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'OWNER' | 'STAFF';
+  isActive?: boolean;
+  createdAt?: string;
   business: {
     id: string;
     name: string;
     logo?: string;
     primaryColor: string;
-    currency: string;
+    currency?: string;
   };
 }

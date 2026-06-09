@@ -99,7 +99,7 @@ async function main() {
     create: {
       id: 'court-fb-1',
       branchId: branch1.id,
-      sportId: football.id,
+      sports: { connect: [{ id: football.id }] },
       name: 'Futsal Court A',
       description: 'Astroturf 5-a-side football court with floodlights',
       pricePerHour: 3500,
@@ -114,7 +114,7 @@ async function main() {
     create: {
       id: 'court-fb-2',
       branchId: branch1.id,
-      sportId: football.id,
+      sports: { connect: [{ id: football.id }] },
       name: 'Futsal Court B',
       description: 'Premium synthetic turf court',
       pricePerHour: 4000,
@@ -129,7 +129,7 @@ async function main() {
     create: {
       id: 'court-cr-1',
       branchId: branch1.id,
-      sportId: cricket.id,
+      sports: { connect: [{ id: cricket.id }] },
       name: 'Cricket Net 1',
       description: 'Professional indoor cricket practice net',
       pricePerHour: 2000,
@@ -144,7 +144,7 @@ async function main() {
     create: {
       id: 'court-bd-1',
       branchId: branch1.id,
-      sportId: badminton.id,
+      sports: { connect: [{ id: badminton.id }] },
       name: 'Badminton Court 1',
       description: 'Standard badminton court with wooden flooring',
       pricePerHour: 1500,
@@ -159,7 +159,7 @@ async function main() {
     create: {
       id: 'court-kandy-fb-1',
       branchId: branch2.id,
-      sportId: football.id,
+      sports: { connect: [{ id: football.id }] },
       name: 'Kandy Futsal Court',
       description: 'Indoor futsal court with premium astroturf',
       pricePerHour: 3000,

@@ -36,7 +36,7 @@ let CustomerService = class CustomerService {
             where: { id },
             include: {
                 bookings: {
-                    include: { court: { include: { sport: true } }, branch: true, payment: true },
+                    include: { court: { include: { sports: true } }, branch: true, payment: true },
                     orderBy: { createdAt: 'desc' },
                     take: 20,
                 },

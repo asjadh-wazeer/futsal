@@ -60,7 +60,7 @@ export default function ConfirmationPage() {
             <div>
               <p className="text-xs text-gray-500 mb-0.5">Court</p>
               <p className="font-semibold text-gray-900">{booking.court.name}</p>
-              <p className="text-sm text-gray-500">{booking.court.sport.name}</p>
+              <p className="text-sm text-gray-500">{booking.sport?.name || booking.court.sports?.[0]?.name || 'Multi-sport'}</p>
             </div>
           </div>
 

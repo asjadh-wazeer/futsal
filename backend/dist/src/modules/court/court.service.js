@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CourtService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
-const dayjs = require("dayjs");
 let CourtService = class CourtService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -22,16 +21,16 @@ let CourtService = class CourtService {
             where: {
                 isActive: true,
                 ...(branchId && { branchId }),
-                ...(sportId && { sportId }),
+                ...(sportId && { sports: { some: { id: sportId } } }),
             },
-            include: { sport: true, branch: { select: { name: true, city: true } } },
+            include: { sports: true, branch: { select: { name: true, city: true } } },
             orderBy: { name: 'asc' },
         });
     }
     async findOne(id) {
         const court = await this.prisma.court.findUnique({
             where: { id },
-            include: { sport: true, branch: true },
+            include: { sports: true, branch: true },
         });
         if (!court)
             throw new common_1.NotFoundException('Court not found');
@@ -62,16 +61,30 @@ let CourtService = class CourtService {
                 const bookEnd = parseInt(range.end.split(':')[0]) * 60 + parseInt(range.end.split(':')[1]);
                 return slotStart < bookEnd && slotEnd > bookStart;
             });
-            const isPast = dayjs(`${date} ${startTime}`).isBefore(dayjs());
-            slots.push({ time: startTime, endTime, available: !isBooked && !isPast });
+            slots.push({ time: startTime, endTime, available: !isBooked });
         }
         return { courtId, date, slots };
     }
     async create(data) {
-        return this.prisma.court.create({ data, include: { sport: true } });
+        const { sportIds, ...rest } = data;
+        return this.prisma.court.create({
+            data: {
+                ...rest,
+                ...(sportIds?.length && { sports: { connect: sportIds.map((id) => ({ id })) } }),
+            },
+            include: { sports: true },
+        });
     }
     async update(id, data) {
-        return this.prisma.court.update({ where: { id }, data, include: { sport: true } });
+        const { sportIds, ...rest } = data;
+        return this.prisma.court.update({
+            where: { id },
+            data: {
+                ...rest,
+                ...(sportIds && { sports: { set: sportIds.map((id) => ({ id })) } }),
+            },
+            include: { sports: true },
+        });
     }
     async remove(id) {
         return this.prisma.court.update({ where: { id }, data: { isActive: false } });

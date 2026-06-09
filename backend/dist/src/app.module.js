@@ -20,6 +20,7 @@ const customer_module_1 = require("./modules/customer/customer.module");
 const analytics_module_1 = require("./modules/analytics/analytics.module");
 const payment_module_1 = require("./modules/payment/payment.module");
 const customer_auth_module_1 = require("./modules/customer-auth/customer-auth.module");
+const owner_module_1 = require("./modules/owner/owner.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -38,6 +39,7 @@ exports.AppModule = AppModule = __decorate([
             analytics_module_1.AnalyticsModule,
             payment_module_1.PaymentModule,
             customer_auth_module_1.CustomerAuthModule,
+            owner_module_1.OwnerModule,
         ],
     })
 ], AppModule);

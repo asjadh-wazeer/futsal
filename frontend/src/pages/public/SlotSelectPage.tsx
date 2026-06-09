@@ -25,7 +25,7 @@ export default function SlotSelectPage() {
 
   useEffect(() => {
     if (!selectedCourt) { navigate('/booking/court'); return; }
-    if (!currentDate) return;
+    if (!selectedDate) dispatch(setDate(today));
     loadSlots(currentDate);
   }, [selectedCourt, currentDate]);
 
@@ -33,7 +33,12 @@ export default function SlotSelectPage() {
     setLoading(true);
     try {
       const res = await publicApi.getAvailability(selectedCourt!.id, date);
-      setSlots(res.data.slots);
+      const now = dayjs();
+      const filtered = res.data.slots.map((slot: TimeSlot) => ({
+        ...slot,
+        available: slot.available && (date !== today || dayjs(`${date} ${slot.time}`).isAfter(now)),
+      }));
+      setSlots(filtered);
     } finally {
       setLoading(false);
     }

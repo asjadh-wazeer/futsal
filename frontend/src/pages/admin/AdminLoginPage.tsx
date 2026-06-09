@@ -11,12 +11,15 @@ export default function AdminLoginPage() {
   const [showPw, setShowPw] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { loading, error, token } = useSelector((s: RootState) => s.auth);
+  const { loading, error, token, admin } = useSelector((s: RootState) => s.auth);
 
   useEffect(() => {
-    if (token) navigate('/admin', { replace: true });
+    if (token && admin) {
+      if (admin.role === 'OWNER') navigate('/owner', { replace: true });
+      else navigate('/admin', { replace: true });
+    }
     return () => { dispatch(clearError()); };
-  }, [token]);
+  }, [token, admin]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

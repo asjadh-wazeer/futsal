@@ -2,7 +2,32 @@ import { BranchService } from './branch.service';
 export declare class BranchController {
     private service;
     constructor(service: BranchService);
-    findAll(businessId?: string): Promise<({
+    findAll(businessId?: string, search?: string, sportId?: string): Promise<({
+        courts: ({
+            sports: {
+                id: string;
+                name: string;
+                description: string | null;
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                icon: string | null;
+                color: string;
+            }[];
+        } & {
+            id: string;
+            name: string;
+            description: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            branchId: string;
+            image: string | null;
+            pricePerHour: import("@prisma/client/runtime/library").Decimal;
+            size: string | null;
+            minDuration: number;
+            maxDuration: number;
+        })[];
         _count: {
             courts: number;
             bookings: number;
@@ -25,7 +50,7 @@ export declare class BranchController {
     })[]>;
     findOne(id: string): Promise<{
         courts: ({
-            sport: {
+            sports: {
                 id: string;
                 name: string;
                 description: string | null;
@@ -34,7 +59,7 @@ export declare class BranchController {
                 updatedAt: Date;
                 icon: string | null;
                 color: string;
-            };
+            }[];
         } & {
             id: string;
             name: string;
@@ -43,9 +68,9 @@ export declare class BranchController {
             createdAt: Date;
             updatedAt: Date;
             branchId: string;
-            sportId: string;
             image: string | null;
             pricePerHour: import("@prisma/client/runtime/library").Decimal;
+            size: string | null;
             minDuration: number;
             maxDuration: number;
         })[];
@@ -65,16 +90,7 @@ export declare class BranchController {
         closeTime: string;
         slotDuration: number;
     }>;
-    getSports(id: string): Promise<{
-        id: string;
-        name: string;
-        description: string | null;
-        isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
-        icon: string | null;
-        color: string;
-    }[]>;
+    getSports(id: string): Promise<any[]>;
     create(req: any, body: any): Promise<{
         id: string;
         name: string;

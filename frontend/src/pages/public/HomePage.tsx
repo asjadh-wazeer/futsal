@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, MapPin, Clock, Shield, Star, ChevronRight, Zap } from 'lucide-react';
+import { ArrowRight, MapPin, Clock, Shield, Star, ChevronRight, Zap, Search } from 'lucide-react';
 
 const sports = [
   {
@@ -35,10 +35,6 @@ const features = [
   { icon: Star, title: 'Premium Facilities', desc: 'Top-quality courts maintained to the highest standards.' },
 ];
 
-const branches = [
-  { name: 'Colombo — Wellawatte', address: '45 Galle Road, Wellawatte', courts: 4, open: '6 AM – 11 PM' },
-  { name: 'Kandy — Peradeniya', address: '12 Peradeniya Road, Kandy', courts: 2, open: '6 AM – 10 PM' },
-];
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -66,17 +62,17 @@ export default function HomePage() {
               Futsal, cricket nets, and badminton courts at premium venues across Colombo and Kandy. Book instantly, play immediately.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <button onClick={() => navigate('/booking/branch')} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-brand-700 font-bold rounded-xl hover:bg-green-50 transition-all shadow-lg text-base">
+              <button onClick={() => navigate('/futsals')} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-brand-700 font-bold rounded-xl hover:bg-green-50 transition-all shadow-lg text-base">
+                <Search className="w-5 h-5" /> Browse Centers
+              </button>
+              <button onClick={() => navigate('/booking/branch')} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 border border-white/20 transition-all text-base">
                 Book Now <ArrowRight className="w-5 h-5" />
               </button>
-              <a href="#sports" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 border border-white/20 transition-all text-base">
-                View Sports
-              </a>
             </div>
             <div className="flex items-center gap-6 mt-8 text-sm text-green-200">
-              <span className="flex items-center gap-1.5"><span className="text-green-300 font-bold">2</span> Locations</span>
-              <span className="flex items-center gap-1.5"><span className="text-green-300 font-bold">7+</span> Courts</span>
-              <span className="flex items-center gap-1.5"><span className="text-green-300 font-bold">500+</span> Bookings</span>
+              <span className="flex items-center gap-1.5"><span className="text-green-300 font-bold">50+</span> Centers</span>
+              <span className="flex items-center gap-1.5"><span className="text-green-300 font-bold">200+</span> Courts</span>
+              <span className="flex items-center gap-1.5"><span className="text-green-300 font-bold">5,000+</span> Bookings</span>
             </div>
           </div>
         </div>
@@ -170,32 +166,30 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Branches */}
+      {/* Browse Centers CTA */}
       <section id="about" className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-3">Our Locations</h2>
-            <p className="text-gray-500">Premium sports facilities across Sri Lanka</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="mb-10">
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-3">Browse All Futsal Centers</h2>
+            <p className="text-gray-500 max-w-xl mx-auto">Discover registered futsal grounds across Sri Lanka — search by city, filter by sport, and book instantly.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            {branches.map((branch) => (
-              <div key={branch.name} className="card hover:shadow-card-hover transition-all">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-brand-100 flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-brand-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900">{branch.name}</h3>
-                    <p className="text-sm text-gray-500">{branch.address}</p>
-                  </div>
-                </div>
-                <div className="flex gap-4 text-sm text-gray-500 border-t border-gray-100 pt-4">
-                  <span>{branch.courts} courts available</span>
-                  <span className="text-brand-600 font-medium">{branch.open}</span>
-                </div>
-              </div>
-            ))}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+            <div className="flex items-center gap-2 px-5 py-3 bg-white rounded-2xl shadow-sm border border-gray-100 text-sm text-gray-600">
+              <MapPin className="w-4 h-4 text-brand-600" /> Search by city or name
+            </div>
+            <div className="flex items-center gap-2 px-5 py-3 bg-white rounded-2xl shadow-sm border border-gray-100 text-sm text-gray-600">
+              <span className="text-base">⚽</span> Filter by sport
+            </div>
+            <div className="flex items-center gap-2 px-5 py-3 bg-white rounded-2xl shadow-sm border border-gray-100 text-sm text-gray-600">
+              <Clock className="w-4 h-4 text-brand-600" /> See real-time availability
+            </div>
           </div>
+          <button
+            onClick={() => navigate('/futsals')}
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition-colors shadow-sm text-base"
+          >
+            <Search className="w-5 h-5" /> Browse All Centers <ArrowRight className="w-5 h-5" />
+          </button>
         </div>
       </section>
 

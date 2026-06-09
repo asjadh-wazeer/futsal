@@ -38,14 +38,14 @@ let AnalyticsService = class AnalyticsService {
             this.prisma.branch.count({ where: { isActive: true } }),
             this.prisma.booking.findMany({
                 where: { status: { notIn: ['CANCELLED'] } },
-                include: { customer: true, court: { include: { sport: true } }, branch: { select: { name: true } } },
+                include: { customer: true, court: { include: { sports: true } }, branch: { select: { name: true } } },
                 orderBy: { createdAt: 'desc' },
                 take: 8,
             }),
             this.prisma.court.findMany({
                 where: { isActive: true },
                 include: {
-                    sport: true,
+                    sports: true,
                     _count: { select: { bookings: true } },
                 },
                 orderBy: { name: 'asc' },
@@ -103,7 +103,7 @@ let AnalyticsService = class AnalyticsService {
             }),
             this.prisma.booking.findMany({
                 where: { branch: { businessId } },
-                include: { court: { include: { sport: { select: { name: true } } } } },
+                include: { sport: { select: { name: true } } },
             }),
             this.prisma.booking.groupBy({
                 by: ['branchId'],
@@ -118,7 +118,7 @@ let AnalyticsService = class AnalyticsService {
         ]);
         const sportCounts = {};
         bySport.forEach((b) => {
-            const name = b.court?.sport?.name || 'Unknown';
+            const name = b.sport?.name || 'General';
             sportCounts[name] = (sportCounts[name] || 0) + 1;
         });
         const hourCounts = {};

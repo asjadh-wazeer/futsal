@@ -55,37 +55,76 @@ model Branch {
 }
 
 model Sport {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
   icon        String?
   description String?
-  color       String   @default("#16a34a")
+  color       String    @default("#16a34a")
   courts      Court[]
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  bookings    Booking[]
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@map("sports")
 }
 
 model Court {
-  id           String    @id @default(cuid())
+  id           String          @id @default(cuid())
   branchId     String
-  branch       Branch    @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  sportId      String
-  sport        Sport     @relation(fields: [sportId], references: [id])
+  branch       Branch          @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  sports       Sport[]
   name         String
   description  String?
   image        String?
-  pricePerHour Decimal   @db.Decimal(10, 2)
-  minDuration  Int       @default(60)
-  maxDuration  Int       @default(120)
-  isActive     Boolean   @default(true)
+  pricePerHour Decimal         @db.Decimal(10, 2)
+  size         String?
+  minDuration  Int             @default(60)
+  maxDuration  Int             @default(120)
+  isActive     Boolean         @default(true)
   bookings     Booking[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  pricingRules PricingRule[]
+  schedules    CourtSchedule[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 
   @@map("courts")
+}
+
+enum DayType {
+  ALL
+  WEEKDAY
+  WEEKEND
+}
+
+model PricingRule {
+  id           String   @id @default(cuid())
+  courtId      String
+  court        Court    @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  name         String
+  pricePerHour Decimal  @db.Decimal(10, 2)
+  dayType      DayType  @default(ALL)
+  startHour    Int      @default(0)
+  endHour      Int      @default(24)
+  priority     Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("pricing_rules")
+}
+
+model CourtSchedule {
+  id        String  @id @default(cuid())
+  courtId   String
+  court     Court   @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  dayOfWeek Int
+  openTime  String  @default("06:00")
+  closeTime String  @default("22:00")
+  isOpen    Boolean @default(true)
+
+  @@unique([courtId, dayOfWeek])
+  @@map("court_schedules")
 }
 
 model Customer {
@@ -115,6 +154,8 @@ model Booking {
   court       Court         @relation(fields: [courtId], references: [id])
   customerId  String
   customer    Customer      @relation(fields: [customerId], references: [id])
+  sportId     String?
+  sport       Sport?        @relation(fields: [sportId], references: [id])
   date        DateTime      @db.Date
   startTime   String
   endTime     String
@@ -186,5 +227,6 @@ model Admin {
 enum AdminRole {
   SUPER_ADMIN
   ADMIN
+  OWNER
   STAFF
 }

@@ -11,6 +11,7 @@ import { CustomerModule } from './modules/customer/customer.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { CustomerAuthModule } from './modules/customer-auth/customer-auth.module';
+import { OwnerModule } from './modules/owner/owner.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CustomerAuthModule } from './modules/customer-auth/customer-auth.module
     AnalyticsModule,
     PaymentModule,
     CustomerAuthModule,
+    OwnerModule,
   ],
 })
 export class AppModule {}

@@ -14,7 +14,7 @@ export declare class AnalyticsService {
                 name: string;
             };
             court: {
-                sport: {
+                sports: {
                     id: string;
                     name: string;
                     description: string | null;
@@ -23,7 +23,7 @@ export declare class AnalyticsService {
                     updatedAt: Date;
                     icon: string | null;
                     color: string;
-                };
+                }[];
             } & {
                 id: string;
                 name: string;
@@ -32,9 +32,9 @@ export declare class AnalyticsService {
                 createdAt: Date;
                 updatedAt: Date;
                 branchId: string;
-                sportId: string;
                 image: string | null;
                 pricePerHour: import("@prisma/client/runtime/library").Decimal;
+                size: string | null;
                 minDuration: number;
                 maxDuration: number;
             };
@@ -57,6 +57,7 @@ export declare class AnalyticsService {
             createdAt: Date;
             updatedAt: Date;
             branchId: string;
+            sportId: string | null;
             bookingRef: string;
             courtId: string;
             customerId: string;
@@ -69,7 +70,7 @@ export declare class AnalyticsService {
             notes: string | null;
         })[];
         courtUtilization: ({
-            sport: {
+            sports: {
                 id: string;
                 name: string;
                 description: string | null;
@@ -78,7 +79,7 @@ export declare class AnalyticsService {
                 updatedAt: Date;
                 icon: string | null;
                 color: string;
-            };
+            }[];
             _count: {
                 bookings: number;
             };
@@ -90,9 +91,9 @@ export declare class AnalyticsService {
             createdAt: Date;
             updatedAt: Date;
             branchId: string;
-            sportId: string;
             image: string | null;
             pricePerHour: import("@prisma/client/runtime/library").Decimal;
+            size: string | null;
             minDuration: number;
             maxDuration: number;
         })[];

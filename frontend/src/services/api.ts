@@ -52,7 +52,8 @@ customerApiClient.interceptors.response.use(
 );
 
 export const publicApi = {
-  getBranches: (businessId?: string) => api.get('/branches', { params: { businessId } }),
+  getBranches: (params?: { businessId?: string; search?: string; sportId?: string }) =>
+    api.get('/branches', { params }),
   getBranch: (id: string) => api.get(`/branches/${id}`),
   getBranchSports: (branchId: string) => api.get(`/branches/${branchId}/sports`),
   getCourts: (params: { branchId?: string; sportId?: string }) => api.get('/courts', { params }),
@@ -61,6 +62,7 @@ export const publicApi = {
   createBooking: (data: any) => api.post('/bookings', data),
   getBookingByRef: (ref: string) => api.get(`/bookings/ref/${ref}`),
   getPublicSettings: (slug: string) => api.get(`/business/public/${slug}`),
+  getSports: () => api.get('/sports'),
 };
 
 export const customerApi = {
@@ -103,4 +105,39 @@ export const adminApi = {
   updateBusiness: (data: any) => api.patch('/business', data),
 
   confirmCashPayment: (bookingId: string) => api.post(`/payment/confirm-cash/${bookingId}`),
+};
+
+export const ownerApi = {
+  getDashboard: () => api.get('/owner/dashboard'),
+  getAnalytics: (params?: any) => api.get('/owner/analytics', { params }),
+
+  getCourts: () => api.get('/owner/courts'),
+  getCourt: (id: string) => api.get(`/owner/courts/${id}`),
+  createCourt: (data: any) => api.post('/owner/courts', data),
+  updateCourt: (id: string, data: any) => api.patch(`/owner/courts/${id}`, data),
+
+  getPricingRules: (courtId: string) => api.get(`/owner/courts/${courtId}/pricing`),
+  createPricingRule: (courtId: string, data: any) => api.post(`/owner/courts/${courtId}/pricing`, data),
+  updatePricingRule: (courtId: string, ruleId: string, data: any) =>
+    api.patch(`/owner/courts/${courtId}/pricing/${ruleId}`, data),
+  deletePricingRule: (courtId: string, ruleId: string) =>
+    api.delete(`/owner/courts/${courtId}/pricing/${ruleId}`),
+
+  getSchedule: (courtId: string) => api.get(`/owner/courts/${courtId}/schedule`),
+  upsertSchedule: (courtId: string, schedules: any[]) =>
+    api.put(`/owner/courts/${courtId}/schedule`, { schedules }),
+
+  getBookings: (params?: any) => api.get('/owner/bookings', { params }),
+  updateBookingStatus: (id: string, status: string) =>
+    api.patch(`/owner/bookings/${id}/status`, { status }),
+
+  getBranches: () => api.get('/owner/branches'),
+  createBranch: (data: any) => api.post('/owner/branches', data),
+  updateBranch: (id: string, data: any) => api.patch(`/owner/branches/${id}`, data),
+  getSports: () => api.get('/owner/sports'),
+
+  createOwner: (data: any) => api.post('/owner/manage/owners', data),
+  getOwners: () => api.get('/owner/manage/owners'),
+  toggleOwnerStatus: (id: string) => api.patch(`/owner/manage/owners/${id}/toggle`),
+  getBusinesses: () => api.get('/owner/manage/businesses'),
 };

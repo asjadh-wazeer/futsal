@@ -108,7 +108,7 @@ export class CustomerAuthService {
       include: {
         bookings: {
           include: {
-            court: { include: { sport: true } },
+            court: { include: { sports: true } },
             branch: { select: { name: true, city: true } },
             payment: true,
           },
@@ -118,7 +118,7 @@ export class CustomerAuthService {
       },
     });
     if (!customer) throw new NotFoundException('Customer not found');
-    return { ...this.sanitize(customer), bookings: customer.bookings };
+    return { ...this.sanitize(customer), bookings: (customer as any).bookings };
   }
 
   async updateProfile(customerId: string, data: { name?: string; phone?: string }) {

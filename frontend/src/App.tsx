@@ -16,6 +16,7 @@ import LoginPage from './pages/public/LoginPage';
 import RegisterPage from './pages/public/RegisterPage';
 import GoogleCallbackPage from './pages/public/GoogleCallbackPage';
 import ProfilePage from './pages/public/ProfilePage';
+import FutsalDiscoveryPage from './pages/public/FutsalDiscoveryPage';
 
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import DashboardPage from './pages/admin/DashboardPage';
@@ -25,10 +26,28 @@ import CustomersPage from './pages/admin/CustomersPage';
 import AnalyticsPage from './pages/admin/AnalyticsPage';
 import BranchesPage from './pages/admin/BranchesPage';
 import SettingsPage from './pages/admin/SettingsPage';
+import OwnersPage from './pages/admin/OwnersPage';
+
+import OwnerLayout from './layouts/OwnerLayout';
+import OwnerLoginPage from './pages/owner/OwnerLoginPage';
+import OwnerDashboardPage from './pages/owner/OwnerDashboardPage';
+import OwnerFutsalsPage from './pages/owner/OwnerFutsalsPage';
+import OwnerCourtsPage from './pages/owner/OwnerCourtsPage';
+import OwnerBookingsPage from './pages/owner/OwnerBookingsPage';
+import OwnerAnalyticsPage from './pages/owner/OwnerAnalyticsPage';
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const token = useSelector((s: RootState) => s.auth.token);
-  return token ? <>{children}</> : <Navigate to="/admin/login" replace />;
+  const admin = useSelector((s: RootState) => s.auth.admin);
+  if (!token) return <Navigate to="/admin/login" replace />;
+  if (admin?.role === 'OWNER') return <Navigate to="/owner" replace />;
+  return <>{children}</>;
+}
+
+function OwnerRoute({ children }: { children: React.ReactNode }) {
+  const token = useSelector((s: RootState) => s.auth.token);
+  if (!token) return <Navigate to="/owner/login" replace />;
+  return <>{children}</>;
 }
 
 export default function App() {
@@ -50,6 +69,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/futsals" element={<FutsalDiscoveryPage />} />
       </Route>
 
       {/* Google OAuth callback — no layout wrapper needed */}
@@ -72,6 +92,24 @@ export default function App() {
         <Route path="customers" element={<CustomersPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="owners" element={<OwnersPage />} />
+      </Route>
+
+      {/* Owner portal */}
+      <Route path="/owner/login" element={<OwnerLoginPage />} />
+      <Route
+        path="/owner"
+        element={
+          <OwnerRoute>
+            <OwnerLayout />
+          </OwnerRoute>
+        }
+      >
+        <Route index element={<OwnerDashboardPage />} />
+        <Route path="futsals" element={<OwnerFutsalsPage />} />
+        <Route path="courts" element={<OwnerCourtsPage />} />
+        <Route path="bookings" element={<OwnerBookingsPage />} />
+        <Route path="analytics" element={<OwnerAnalyticsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

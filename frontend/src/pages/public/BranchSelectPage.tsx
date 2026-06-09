@@ -16,7 +16,7 @@ export default function BranchSelectPage() {
 
   useEffect(() => {
     publicApi.getBranches()
-      .then((res) => setBranches(res.data))
+      .then((res: any) => setBranches(res.data))
       .finally(() => setLoading(false));
   }, []);
 

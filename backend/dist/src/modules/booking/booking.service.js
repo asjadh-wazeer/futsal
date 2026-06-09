@@ -47,13 +47,15 @@ let BookingService = class BookingService {
             throw new common_1.BadRequestException('This slot is already booked');
         const customer = await this.customerService.findOrCreate(dto.customerPhone, dto.customerName, dto.customerEmail);
         const duration = this.calcDuration(dto.startTime, dto.endTime);
-        const totalAmount = (Number(court.pricePerHour) * duration) / 60;
+        const pricePerHour = await this.resolvePrice(dto.courtId, dto.date, dto.startTime, Number(court.pricePerHour));
+        const totalAmount = (pricePerHour * duration) / 60;
         const booking = await this.prisma.booking.create({
             data: {
                 bookingRef: this.generateRef(),
                 branchId: court.branchId,
                 courtId: dto.courtId,
                 customerId: customer.id,
+                ...(dto.sportId && { sportId: dto.sportId }),
                 date: new Date(dto.date),
                 startTime: dto.startTime,
                 endTime: dto.endTime,
@@ -69,13 +71,27 @@ let BookingService = class BookingService {
                 },
             },
             include: {
-                court: { include: { sport: true } },
+                court: { include: { sports: true } },
                 branch: true,
                 customer: true,
                 payment: true,
             },
         });
         return booking;
+    }
+    async resolvePrice(courtId, date, startTime, defaultPrice) {
+        const d = new Date(date);
+        const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+        const hour = parseInt(startTime.split(':')[0]);
+        const rules = await this.prisma.pricingRule.findMany({
+            where: { courtId, isActive: true },
+            orderBy: { priority: 'desc' },
+        });
+        const match = rules.find((r) => {
+            const dayOk = r.dayType === 'ALL' || (r.dayType === 'WEEKDAY' && !isWeekend) || (r.dayType === 'WEEKEND' && isWeekend);
+            return dayOk && hour >= r.startHour && hour < r.endHour;
+        });
+        return match ? Number(match.pricePerHour) : defaultPrice;
     }
     calcDuration(start, end) {
         const [sh, sm] = start.split(':').map(Number);
@@ -103,7 +119,7 @@ let BookingService = class BookingService {
             this.prisma.booking.findMany({
                 where,
                 include: {
-                    court: { include: { sport: true } },
+                    court: { include: { sports: true } },
                     branch: { select: { name: true, city: true } },
                     customer: true,
                     payment: true,
@@ -120,7 +136,7 @@ let BookingService = class BookingService {
         const booking = await this.prisma.booking.findUnique({
             where: { bookingRef: ref },
             include: {
-                court: { include: { sport: true } },
+                court: { include: { sports: true } },
                 branch: true,
                 customer: true,
                 payment: true,
@@ -134,7 +150,7 @@ let BookingService = class BookingService {
         const booking = await this.prisma.booking.findUnique({
             where: { id },
             include: {
-                court: { include: { sport: true } },
+                court: { include: { sports: true } },
                 branch: true,
                 customer: true,
                 payment: true,
@@ -174,7 +190,7 @@ let BookingService = class BookingService {
                 status: { notIn: ['CANCELLED'] },
             },
             include: {
-                court: { include: { sport: true } },
+                court: { include: { sports: true } },
                 customer: true,
                 payment: true,
             },

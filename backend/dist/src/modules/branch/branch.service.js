@@ -16,11 +16,28 @@ let BranchService = class BranchService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async findAll(businessId) {
+    async findAll(businessId, search, sportId) {
         return this.prisma.branch.findMany({
-            where: { isActive: true, ...(businessId && { businessId }) },
+            where: {
+                isActive: true,
+                ...(businessId && { businessId }),
+                ...(search && {
+                    OR: [
+                        { name: { contains: search, mode: 'insensitive' } },
+                        { city: { contains: search, mode: 'insensitive' } },
+                        { address: { contains: search, mode: 'insensitive' } },
+                    ],
+                }),
+                ...(sportId && {
+                    courts: { some: { sports: { some: { id: sportId } }, isActive: true } },
+                }),
+            },
             include: {
                 _count: { select: { courts: true, bookings: true } },
+                courts: {
+                    where: { isActive: true },
+                    include: { sports: true },
+                },
             },
             orderBy: { name: 'asc' },
         });
@@ -31,7 +48,7 @@ let BranchService = class BranchService {
             include: {
                 courts: {
                     where: { isActive: true },
-                    include: { sport: true },
+                    include: { sports: true },
                 },
             },
         });
@@ -42,10 +59,19 @@ let BranchService = class BranchService {
     async findSportsByBranch(branchId) {
         const courts = await this.prisma.court.findMany({
             where: { branchId, isActive: true },
-            select: { sport: true },
-            distinct: ['sportId'],
+            include: { sports: true },
         });
-        return courts.map((c) => c.sport);
+        const seen = new Set();
+        const sports = [];
+        for (const court of courts) {
+            for (const sport of court.sports) {
+                if (!seen.has(sport.id)) {
+                    seen.add(sport.id);
+                    sports.push(sport);
+                }
+            }
+        }
+        return sports;
     }
     async create(businessId, data) {
         return this.prisma.branch.create({ data: { ...data, businessId } });

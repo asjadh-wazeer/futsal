@@ -103,7 +103,7 @@ let CustomerAuthService = class CustomerAuthService {
             include: {
                 bookings: {
                     include: {
-                        court: { include: { sport: true } },
+                        court: { include: { sports: true } },
                         branch: { select: { name: true, city: true } },
                         payment: true,
                     },

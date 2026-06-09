@@ -39,7 +39,7 @@ export declare class CustomerService {
                 slotDuration: number;
             };
             court: {
-                sport: {
+                sports: {
                     id: string;
                     name: string;
                     description: string | null;
@@ -48,7 +48,7 @@ export declare class CustomerService {
                     updatedAt: Date;
                     icon: string | null;
                     color: string;
-                };
+                }[];
             } & {
                 id: string;
                 name: string;
@@ -57,9 +57,9 @@ export declare class CustomerService {
                 createdAt: Date;
                 updatedAt: Date;
                 branchId: string;
-                sportId: string;
                 image: string | null;
                 pricePerHour: import("@prisma/client/runtime/library").Decimal;
+                size: string | null;
                 minDuration: number;
                 maxDuration: number;
             };
@@ -80,6 +80,7 @@ export declare class CustomerService {
             createdAt: Date;
             updatedAt: Date;
             branchId: string;
+            sportId: string | null;
             bookingRef: string;
             courtId: string;
             customerId: string;

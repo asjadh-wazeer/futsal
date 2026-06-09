@@ -7,7 +7,7 @@ export declare class CourtController {
             name: string;
             city: string;
         };
-        sport: {
+        sports: {
             id: string;
             name: string;
             description: string | null;
@@ -16,7 +16,7 @@ export declare class CourtController {
             updatedAt: Date;
             icon: string | null;
             color: string;
-        };
+        }[];
     } & {
         id: string;
         name: string;
@@ -25,9 +25,9 @@ export declare class CourtController {
         createdAt: Date;
         updatedAt: Date;
         branchId: string;
-        sportId: string;
         image: string | null;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
+        size: string | null;
         minDuration: number;
         maxDuration: number;
     })[]>;
@@ -48,7 +48,7 @@ export declare class CourtController {
             closeTime: string;
             slotDuration: number;
         };
-        sport: {
+        sports: {
             id: string;
             name: string;
             description: string | null;
@@ -57,7 +57,7 @@ export declare class CourtController {
             updatedAt: Date;
             icon: string | null;
             color: string;
-        };
+        }[];
     } & {
         id: string;
         name: string;
@@ -66,9 +66,9 @@ export declare class CourtController {
         createdAt: Date;
         updatedAt: Date;
         branchId: string;
-        sportId: string;
         image: string | null;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
+        size: string | null;
         minDuration: number;
         maxDuration: number;
     }>;
@@ -82,7 +82,7 @@ export declare class CourtController {
         }[];
     }>;
     create(body: any): Promise<{
-        sport: {
+        sports: {
             id: string;
             name: string;
             description: string | null;
@@ -91,7 +91,7 @@ export declare class CourtController {
             updatedAt: Date;
             icon: string | null;
             color: string;
-        };
+        }[];
     } & {
         id: string;
         name: string;
@@ -100,14 +100,14 @@ export declare class CourtController {
         createdAt: Date;
         updatedAt: Date;
         branchId: string;
-        sportId: string;
         image: string | null;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
+        size: string | null;
         minDuration: number;
         maxDuration: number;
     }>;
     update(id: string, body: any): Promise<{
-        sport: {
+        sports: {
             id: string;
             name: string;
             description: string | null;
@@ -116,7 +116,7 @@ export declare class CourtController {
             updatedAt: Date;
             icon: string | null;
             color: string;
-        };
+        }[];
     } & {
         id: string;
         name: string;
@@ -125,9 +125,9 @@ export declare class CourtController {
         createdAt: Date;
         updatedAt: Date;
         branchId: string;
-        sportId: string;
         image: string | null;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
+        size: string | null;
         minDuration: number;
         maxDuration: number;
     }>;
@@ -139,9 +139,9 @@ export declare class CourtController {
         createdAt: Date;
         updatedAt: Date;
         branchId: string;
-        sportId: string;
         image: string | null;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
+        size: string | null;
         minDuration: number;
         maxDuration: number;
     }>;

@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import * as dayjs from 'dayjs';
 
 @Injectable()
 export class CourtService {
@@ -11,9 +10,9 @@ export class CourtService {
       where: {
         isActive: true,
         ...(branchId && { branchId }),
-        ...(sportId && { sportId }),
+        ...(sportId && { sports: { some: { id: sportId } } }),
       },
-      include: { sport: true, branch: { select: { name: true, city: true } } },
+      include: { sports: true, branch: { select: { name: true, city: true } } },
       orderBy: { name: 'asc' },
     });
   }
@@ -21,7 +20,7 @@ export class CourtService {
   async findOne(id: string) {
     const court = await this.prisma.court.findUnique({
       where: { id },
-      include: { sport: true, branch: true },
+      include: { sports: true, branch: true },
     });
     if (!court) throw new NotFoundException('Court not found');
     return court;
@@ -58,20 +57,33 @@ export class CourtService {
         return slotStart < bookEnd && slotEnd > bookStart;
       });
 
-      const isPast = dayjs(`${date} ${startTime}`).isBefore(dayjs());
-
-      slots.push({ time: startTime, endTime, available: !isBooked && !isPast });
+      slots.push({ time: startTime, endTime, available: !isBooked });
     }
 
     return { courtId, date, slots };
   }
 
   async create(data: any) {
-    return this.prisma.court.create({ data, include: { sport: true } });
+    const { sportIds, ...rest } = data;
+    return this.prisma.court.create({
+      data: {
+        ...rest,
+        ...(sportIds?.length && { sports: { connect: sportIds.map((id: string) => ({ id })) } }),
+      },
+      include: { sports: true },
+    });
   }
 
   async update(id: string, data: any) {
-    return this.prisma.court.update({ where: { id }, data, include: { sport: true } });
+    const { sportIds, ...rest } = data;
+    return this.prisma.court.update({
+      where: { id },
+      data: {
+        ...rest,
+        ...(sportIds && { sports: { set: sportIds.map((id: string) => ({ id })) } }),
+      },
+      include: { sports: true },
+    });
   }
 
   async remove(id: string) {

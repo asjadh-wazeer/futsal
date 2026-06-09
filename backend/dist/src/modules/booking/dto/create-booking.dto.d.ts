@@ -8,4 +8,5 @@ export declare class CreateBookingDto {
     customerEmail?: string;
     notes?: string;
     paymentMethod?: string;
+    sportId?: string;
 }

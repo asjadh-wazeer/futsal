@@ -5,11 +5,28 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class BranchService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(businessId?: string) {
+  async findAll(businessId?: string, search?: string, sportId?: string) {
     return this.prisma.branch.findMany({
-      where: { isActive: true, ...(businessId && { businessId }) },
+      where: {
+        isActive: true,
+        ...(businessId && { businessId }),
+        ...(search && {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { city: { contains: search, mode: 'insensitive' } },
+            { address: { contains: search, mode: 'insensitive' } },
+          ],
+        }),
+        ...(sportId && {
+          courts: { some: { sports: { some: { id: sportId } }, isActive: true } },
+        }),
+      },
       include: {
         _count: { select: { courts: true, bookings: true } },
+        courts: {
+          where: { isActive: true },
+          include: { sports: true },
+        },
       },
       orderBy: { name: 'asc' },
     });
@@ -21,7 +38,7 @@ export class BranchService {
       include: {
         courts: {
           where: { isActive: true },
-          include: { sport: true },
+          include: { sports: true },
         },
       },
     });
@@ -32,10 +49,19 @@ export class BranchService {
   async findSportsByBranch(branchId: string) {
     const courts = await this.prisma.court.findMany({
       where: { branchId, isActive: true },
-      select: { sport: true },
-      distinct: ['sportId'],
+      include: { sports: true },
     });
-    return courts.map((c) => c.sport);
+    const seen = new Set<string>();
+    const sports: any[] = [];
+    for (const court of courts) {
+      for (const sport of court.sports) {
+        if (!seen.has(sport.id)) {
+          seen.add(sport.id);
+          sports.push(sport);
+        }
+      }
+    }
+    return sports;
   }
 
   async create(businessId: string, data: any) {

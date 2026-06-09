@@ -45,7 +45,8 @@ export class BookingService {
     );
 
     const duration = this.calcDuration(dto.startTime, dto.endTime);
-    const totalAmount = (Number(court.pricePerHour) * duration) / 60;
+    const pricePerHour = await this.resolvePrice(dto.courtId, dto.date, dto.startTime, Number(court.pricePerHour));
+    const totalAmount = (pricePerHour * duration) / 60;
 
     const booking = await this.prisma.booking.create({
       data: {
@@ -53,6 +54,7 @@ export class BookingService {
         branchId: court.branchId,
         courtId: dto.courtId,
         customerId: customer.id,
+        ...(dto.sportId && { sportId: dto.sportId }),
         date: new Date(dto.date),
         startTime: dto.startTime,
         endTime: dto.endTime,
@@ -68,7 +70,7 @@ export class BookingService {
         },
       },
       include: {
-        court: { include: { sport: true } },
+        court: { include: { sports: true } },
         branch: true,
         customer: true,
         payment: true,
@@ -76,6 +78,21 @@ export class BookingService {
     });
 
     return booking;
+  }
+
+  private async resolvePrice(courtId: string, date: string, startTime: string, defaultPrice: number): Promise<number> {
+    const d = new Date(date);
+    const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+    const hour = parseInt(startTime.split(':')[0]);
+    const rules = await this.prisma.pricingRule.findMany({
+      where: { courtId, isActive: true },
+      orderBy: { priority: 'desc' },
+    });
+    const match = rules.find((r) => {
+      const dayOk = r.dayType === 'ALL' || (r.dayType === 'WEEKDAY' && !isWeekend) || (r.dayType === 'WEEKEND' && isWeekend);
+      return dayOk && hour >= r.startHour && hour < r.endHour;
+    });
+    return match ? Number(match.pricePerHour) : defaultPrice;
   }
 
   private calcDuration(start: string, end: string): number {
@@ -111,7 +128,7 @@ export class BookingService {
       this.prisma.booking.findMany({
         where,
         include: {
-          court: { include: { sport: true } },
+          court: { include: { sports: true } },
           branch: { select: { name: true, city: true } },
           customer: true,
           payment: true,
@@ -130,7 +147,7 @@ export class BookingService {
     const booking = await this.prisma.booking.findUnique({
       where: { bookingRef: ref },
       include: {
-        court: { include: { sport: true } },
+        court: { include: { sports: true } },
         branch: true,
         customer: true,
         payment: true,
@@ -144,7 +161,7 @@ export class BookingService {
     const booking = await this.prisma.booking.findUnique({
       where: { id },
       include: {
-        court: { include: { sport: true } },
+        court: { include: { sports: true } },
         branch: true,
         customer: true,
         payment: true,
@@ -189,7 +206,7 @@ export class BookingService {
         status: { notIn: ['CANCELLED'] },
       },
       include: {
-        court: { include: { sport: true } },
+        court: { include: { sports: true } },
         customer: true,
         payment: true,
       },

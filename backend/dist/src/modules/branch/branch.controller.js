@@ -21,8 +21,8 @@ let BranchController = class BranchController {
     constructor(service) {
         this.service = service;
     }
-    findAll(businessId) {
-        return this.service.findAll(businessId);
+    findAll(businessId, search, sportId) {
+        return this.service.findAll(businessId, search, sportId);
     }
     findOne(id) {
         return this.service.findOne(id);
@@ -44,8 +44,10 @@ exports.BranchController = BranchController;
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('businessId')),
+    __param(1, (0, common_1.Query)('search')),
+    __param(2, (0, common_1.Query)('sportId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", void 0)
 ], BranchController.prototype, "findAll", null);
 __decorate([
