@@ -48,6 +48,7 @@ model Branch {
   isActive     Boolean   @default(true)
   courts       Court[]
   bookings     Booking[]
+  staff        Admin[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -213,6 +214,8 @@ model Admin {
   id         String    @id @default(cuid())
   businessId String
   business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  branchId   String?
+  branch     Branch?   @relation(fields: [branchId], references: [id])
   name       String
   email      String    @unique
   password   String

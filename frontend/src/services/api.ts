@@ -20,8 +20,11 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('admin_token');
       localStorage.removeItem('admin_data');
-      if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+      const path = window.location.pathname;
+      if (path.startsWith('/admin') && path !== '/admin/login') {
         window.location.href = '/admin/login';
+      } else if ((path.startsWith('/owner') && path !== '/owner/login') || path.startsWith('/staff')) {
+        window.location.href = '/owner/login';
       }
     }
     return Promise.reject(error);
@@ -108,7 +111,7 @@ export const adminApi = {
 };
 
 export const ownerApi = {
-  getDashboard: () => api.get('/owner/dashboard'),
+  getDashboard: (params?: { branchId?: string }) => api.get('/owner/dashboard', { params }),
   getAnalytics: (params?: any) => api.get('/owner/analytics', { params }),
 
   getCourts: () => api.get('/owner/courts'),
@@ -135,6 +138,12 @@ export const ownerApi = {
   createBranch: (data: any) => api.post('/owner/branches', data),
   updateBranch: (id: string, data: any) => api.patch(`/owner/branches/${id}`, data),
   getSports: () => api.get('/owner/sports'),
+
+  getStaff: (params?: { branchId?: string }) => api.get('/owner/staff', { params }),
+  createStaff: (data: any) => api.post('/owner/staff', data),
+  updateStaff: (id: string, data: any) => api.patch(`/owner/staff/${id}`, data),
+  resetStaffPassword: (id: string, newPassword: string) =>
+    api.post(`/owner/staff/${id}/reset-password`, { newPassword }),
 
   createOwner: (data: any) => api.post('/owner/manage/owners', data),
   getOwners: () => api.get('/owner/manage/owners'),

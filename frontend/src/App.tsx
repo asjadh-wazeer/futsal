@@ -35,18 +35,34 @@ import OwnerFutsalsPage from './pages/owner/OwnerFutsalsPage';
 import OwnerCourtsPage from './pages/owner/OwnerCourtsPage';
 import OwnerBookingsPage from './pages/owner/OwnerBookingsPage';
 import OwnerAnalyticsPage from './pages/owner/OwnerAnalyticsPage';
+import OwnerStaffPage from './pages/owner/OwnerStaffPage';
+
+import StaffLayout from './layouts/StaffLayout';
+import StaffDashboardPage from './pages/staff/StaffDashboardPage';
+import StaffBookingsPage from './pages/staff/StaffBookingsPage';
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const token = useSelector((s: RootState) => s.auth.token);
   const admin = useSelector((s: RootState) => s.auth.admin);
   if (!token) return <Navigate to="/admin/login" replace />;
   if (admin?.role === 'OWNER') return <Navigate to="/owner" replace />;
+  if (admin?.role === 'STAFF') return <Navigate to="/staff" replace />;
   return <>{children}</>;
 }
 
 function OwnerRoute({ children }: { children: React.ReactNode }) {
   const token = useSelector((s: RootState) => s.auth.token);
+  const admin = useSelector((s: RootState) => s.auth.admin);
   if (!token) return <Navigate to="/owner/login" replace />;
+  if (admin?.role === 'STAFF') return <Navigate to="/staff" replace />;
+  return <>{children}</>;
+}
+
+function StaffRoute({ children }: { children: React.ReactNode }) {
+  const token = useSelector((s: RootState) => s.auth.token);
+  const admin = useSelector((s: RootState) => s.auth.admin);
+  if (!token) return <Navigate to="/owner/login" replace />;
+  if (admin?.role === 'OWNER') return <Navigate to="/owner" replace />;
   return <>{children}</>;
 }
 
@@ -110,6 +126,20 @@ export default function App() {
         <Route path="courts" element={<OwnerCourtsPage />} />
         <Route path="bookings" element={<OwnerBookingsPage />} />
         <Route path="analytics" element={<OwnerAnalyticsPage />} />
+        <Route path="staff" element={<OwnerStaffPage />} />
+      </Route>
+
+      {/* Staff portal — shares owner login page */}
+      <Route
+        path="/staff"
+        element={
+          <StaffRoute>
+            <StaffLayout />
+          </StaffRoute>
+        }
+      >
+        <Route index element={<StaffDashboardPage />} />
+        <Route path="bookings" element={<StaffBookingsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

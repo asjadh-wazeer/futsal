@@ -17,7 +17,7 @@ let OwnerService = class OwnerService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async getDashboard(businessId) {
+    async getDashboard(businessId, branchId) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
@@ -25,27 +25,30 @@ let OwnerService = class OwnerService {
         const startOfWeek = new Date(today);
         startOfWeek.setDate(today.getDate() - today.getDay());
         const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        const [todayStats, weekStats, monthStats, totalCustomers, recentBookings, courtStats, todayBookings] = await Promise.all([
+        const baseWhere = branchId
+            ? { branchId }
+            : { branch: { businessId } };
+        const [todayStats, weekStats, monthStats, totalCustomers, recentBookings, courtStats, todayBookings, branches] = await Promise.all([
             this.prisma.booking.aggregate({
-                where: { date: { gte: today, lt: tomorrow }, status: { notIn: ['CANCELLED'] }, branch: { businessId } },
+                where: { ...baseWhere, date: { gte: today, lt: tomorrow }, status: { notIn: ['CANCELLED'] } },
                 _count: true,
                 _sum: { totalAmount: true },
             }),
             this.prisma.booking.aggregate({
-                where: { date: { gte: startOfWeek }, status: { notIn: ['CANCELLED'] }, branch: { businessId } },
+                where: { ...baseWhere, date: { gte: startOfWeek }, status: { notIn: ['CANCELLED'] } },
                 _count: true,
                 _sum: { totalAmount: true },
             }),
             this.prisma.booking.aggregate({
-                where: { date: { gte: startOfMonth }, status: { notIn: ['CANCELLED'] }, branch: { businessId } },
+                where: { ...baseWhere, date: { gte: startOfMonth }, status: { notIn: ['CANCELLED'] } },
                 _count: true,
                 _sum: { totalAmount: true },
             }),
             this.prisma.customer.count({
-                where: { bookings: { some: { branch: { businessId } } } },
+                where: { bookings: { some: branchId ? { branchId } : { branch: { businessId } } } },
             }),
             this.prisma.booking.findMany({
-                where: { branch: { businessId } },
+                where: baseWhere,
                 include: {
                     customer: true,
                     court: { include: { sports: true } },
@@ -56,17 +59,18 @@ let OwnerService = class OwnerService {
                 take: 10,
             }),
             this.prisma.court.findMany({
-                where: { branch: { businessId }, isActive: true },
+                where: branchId ? { branchId, isActive: true } : { branch: { businessId }, isActive: true },
                 include: { sports: true, _count: { select: { bookings: true } } },
             }),
             this.prisma.booking.findMany({
-                where: {
-                    date: { gte: today, lt: tomorrow },
-                    status: { notIn: ['CANCELLED'] },
-                    branch: { businessId },
-                },
-                include: { customer: true, court: { include: { sports: true } } },
+                where: { ...baseWhere, date: { gte: today, lt: tomorrow }, status: { notIn: ['CANCELLED'] } },
+                include: { customer: true, court: { include: { sports: true } }, branch: { select: { name: true } } },
                 orderBy: { startTime: 'asc' },
+            }),
+            this.prisma.branch.findMany({
+                where: { businessId },
+                select: { id: true, name: true, city: true, isActive: true },
+                orderBy: { createdAt: 'asc' },
             }),
         ]);
         return {
@@ -77,10 +81,11 @@ let OwnerService = class OwnerService {
             recentBookings,
             courtStats,
             todaySchedule: todayBookings,
+            branches,
         };
     }
     async getAnalytics(businessId, params) {
-        const { period = 'month', from, to } = params;
+        const { period = 'month', from, to, branchId } = params;
         const now = new Date();
         let startDate;
         let endDate = new Date();
@@ -111,11 +116,14 @@ let OwnerService = class OwnerService {
             default:
                 startDate = new Date(now.getFullYear(), now.getMonth(), 1);
         }
+        const baseWhere = branchId
+            ? { branchId }
+            : { branch: { businessId } };
         const bookings = await this.prisma.booking.findMany({
             where: {
+                ...baseWhere,
                 date: { gte: startDate, lte: endDate },
                 status: { notIn: ['CANCELLED'] },
-                branch: { businessId },
             },
             include: { court: true, sport: true, branch: { select: { name: true } } },
             orderBy: { date: 'asc' },
@@ -123,6 +131,7 @@ let OwnerService = class OwnerService {
         const revenueByDate = {};
         const bookingsByDate = {};
         const courtRevenue = {};
+        const branchRevenue = {};
         const sportCount = {};
         const statusCount = {};
         const hourCount = {};
@@ -137,6 +146,12 @@ let OwnerService = class OwnerService {
             }
             courtRevenue[b.courtId].revenue += Number(b.totalAmount);
             courtRevenue[b.courtId].count += 1;
+            const branchName = b.branch?.name || b.branchId;
+            if (!branchRevenue[b.branchId]) {
+                branchRevenue[b.branchId] = { name: branchName, revenue: 0, count: 0 };
+            }
+            branchRevenue[b.branchId].revenue += Number(b.totalAmount);
+            branchRevenue[b.branchId].count += 1;
             const sport = b.sport?.name || 'General';
             sportCount[sport] = (sportCount[sport] || 0) + 1;
             statusCount[b.status] = (statusCount[b.status] || 0) + 1;
@@ -156,6 +171,7 @@ let OwnerService = class OwnerService {
                 bookings: bookingsByDate[date] || 0,
             })),
             topCourts: Object.values(courtRevenue).sort((a, b) => b.revenue - a.revenue).slice(0, 8),
+            byBranch: Object.values(branchRevenue).sort((a, b) => b.revenue - a.revenue),
             bySport: Object.entries(sportCount).map(([name, count]) => ({ name, count })),
             byStatus: Object.entries(statusCount).map(([status, count]) => ({ status, count })),
             peakHours: Object.entries(hourCount)
@@ -298,9 +314,12 @@ let OwnerService = class OwnerService {
         })));
     }
     async getBookings(businessId, filters) {
-        const { status, date, search, courtId, page = 1, limit = 20 } = filters;
+        const { status, date, search, courtId, branchId, page = 1, limit = 20 } = filters;
         const skip = (page - 1) * limit;
-        const where = { branch: { businessId } };
+        const baseWhere = branchId
+            ? { branchId }
+            : { branch: { businessId } };
+        const where = { ...baseWhere };
         if (status)
             where.status = status;
         if (date)
@@ -353,7 +372,7 @@ let OwnerService = class OwnerService {
     async getBranches(businessId) {
         return this.prisma.branch.findMany({
             where: { businessId },
-            include: { _count: { select: { courts: true, bookings: true } } },
+            include: { _count: { select: { courts: true, bookings: true, staff: true } } },
             orderBy: { createdAt: 'asc' },
         });
     }
@@ -371,7 +390,7 @@ let OwnerService = class OwnerService {
                 closeTime: data.closeTime || '22:00',
                 slotDuration: data.slotDuration || 60,
             },
-            include: { _count: { select: { courts: true, bookings: true } } },
+            include: { _count: { select: { courts: true, bookings: true, staff: true } } },
         });
     }
     async updateBranch(id, businessId, data) {
@@ -392,11 +411,81 @@ let OwnerService = class OwnerService {
                 slotDuration: data.slotDuration,
                 isActive: data.isActive,
             },
-            include: { _count: { select: { courts: true, bookings: true } } },
+            include: { _count: { select: { courts: true, bookings: true, staff: true } } },
         });
     }
     async getSports() {
         return this.prisma.sport.findMany({ where: { isActive: true }, orderBy: { name: 'asc' } });
+    }
+    async getStaff(businessId, branchId) {
+        return this.prisma.admin.findMany({
+            where: {
+                businessId,
+                role: 'STAFF',
+                ...(branchId ? { branchId } : {}),
+            },
+            select: {
+                id: true, name: true, email: true, role: true, isActive: true,
+                branchId: true, createdAt: true,
+                branch: { select: { id: true, name: true, city: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+    async createStaff(businessId, data) {
+        const branch = await this.prisma.branch.findFirst({ where: { id: data.branchId, businessId } });
+        if (!branch)
+            throw new common_1.ForbiddenException('Branch not in your business');
+        const existing = await this.prisma.admin.findUnique({ where: { email: data.email } });
+        if (existing)
+            throw new common_1.BadRequestException('Email already in use');
+        const hashed = await bcrypt.hash(data.password, 10);
+        return this.prisma.admin.create({
+            data: {
+                businessId,
+                name: data.name,
+                email: data.email,
+                password: hashed,
+                role: 'STAFF',
+                branchId: data.branchId,
+            },
+            select: {
+                id: true, name: true, email: true, role: true, isActive: true,
+                branchId: true, createdAt: true,
+                branch: { select: { id: true, name: true, city: true } },
+            },
+        });
+    }
+    async updateStaff(staffId, businessId, data) {
+        const staff = await this.prisma.admin.findFirst({ where: { id: staffId, businessId, role: 'STAFF' } });
+        if (!staff)
+            throw new common_1.NotFoundException('Staff member not found');
+        if (data.branchId) {
+            const branch = await this.prisma.branch.findFirst({ where: { id: data.branchId, businessId } });
+            if (!branch)
+                throw new common_1.ForbiddenException('Branch not in your business');
+        }
+        return this.prisma.admin.update({
+            where: { id: staffId },
+            data: {
+                ...(data.name !== undefined && { name: data.name }),
+                ...(data.branchId !== undefined && { branchId: data.branchId }),
+                ...(data.isActive !== undefined && { isActive: data.isActive }),
+            },
+            select: {
+                id: true, name: true, email: true, role: true, isActive: true,
+                branchId: true, createdAt: true,
+                branch: { select: { id: true, name: true, city: true } },
+            },
+        });
+    }
+    async resetStaffPassword(staffId, businessId, newPassword) {
+        const staff = await this.prisma.admin.findFirst({ where: { id: staffId, businessId, role: 'STAFF' } });
+        if (!staff)
+            throw new common_1.NotFoundException('Staff member not found');
+        const hashed = await bcrypt.hash(newPassword, 10);
+        await this.prisma.admin.update({ where: { id: staffId }, data: { password: hashed } });
+        return { message: 'Password reset successfully' };
     }
     async createOwner(data) {
         const existing = await this.prisma.admin.findUnique({ where: { email: data.email } });

@@ -2,7 +2,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 export declare class OwnerService {
     private prisma;
     constructor(prisma: PrismaService);
-    getDashboard(businessId: string): Promise<{
+    getDashboard(businessId: string, branchId?: string): Promise<{
         today: {
             bookings: number;
             revenue: number;
@@ -117,6 +117,9 @@ export declare class OwnerService {
             maxDuration: number;
         })[];
         todaySchedule: ({
+            branch: {
+                name: string;
+            };
             court: {
                 sports: {
                     id: string;
@@ -173,11 +176,18 @@ export declare class OwnerService {
             status: import(".prisma/client").$Enums.BookingStatus;
             notes: string | null;
         })[];
+        branches: {
+            id: string;
+            name: string;
+            city: string;
+            isActive: boolean;
+        }[];
     }>;
     getAnalytics(businessId: string, params: {
         period?: string;
         from?: string;
         to?: string;
+        branchId?: string;
     }): Promise<{
         summary: {
             totalRevenue: number;
@@ -190,6 +200,11 @@ export declare class OwnerService {
             bookings: number;
         }[];
         topCourts: {
+            name: string;
+            revenue: number;
+            count: number;
+        }[];
+        byBranch: {
             name: string;
             revenue: number;
             count: number;
@@ -450,6 +465,7 @@ export declare class OwnerService {
         date?: string;
         search?: string;
         courtId?: string;
+        branchId?: string;
         page?: number;
         limit?: number;
     }): Promise<{
@@ -552,6 +568,7 @@ export declare class OwnerService {
         _count: {
             courts: number;
             bookings: number;
+            staff: number;
         };
     } & {
         id: string;
@@ -573,6 +590,7 @@ export declare class OwnerService {
         _count: {
             courts: number;
             bookings: number;
+            staff: number;
         };
     } & {
         id: string;
@@ -594,6 +612,7 @@ export declare class OwnerService {
         _count: {
             courts: number;
             bookings: number;
+            staff: number;
         };
     } & {
         id: string;
@@ -621,6 +640,60 @@ export declare class OwnerService {
         icon: string | null;
         color: string;
     }[]>;
+    getStaff(businessId: string, branchId?: string): Promise<{
+        id: string;
+        name: string;
+        email: string;
+        isActive: boolean;
+        createdAt: Date;
+        branch: {
+            id: string;
+            name: string;
+            city: string;
+        };
+        branchId: string;
+        role: import(".prisma/client").$Enums.AdminRole;
+    }[]>;
+    createStaff(businessId: string, data: {
+        name: string;
+        email: string;
+        password: string;
+        branchId: string;
+    }): Promise<{
+        id: string;
+        name: string;
+        email: string;
+        isActive: boolean;
+        createdAt: Date;
+        branch: {
+            id: string;
+            name: string;
+            city: string;
+        };
+        branchId: string;
+        role: import(".prisma/client").$Enums.AdminRole;
+    }>;
+    updateStaff(staffId: string, businessId: string, data: {
+        name?: string;
+        branchId?: string;
+        isActive?: boolean;
+    }): Promise<{
+        id: string;
+        name: string;
+        email: string;
+        isActive: boolean;
+        createdAt: Date;
+        branch: {
+            id: string;
+            name: string;
+            city: string;
+        };
+        branchId: string;
+        role: import(".prisma/client").$Enums.AdminRole;
+    }>;
+    resetStaffPassword(staffId: string, businessId: string, newPassword: string): Promise<{
+        message: string;
+    }>;
     createOwner(data: {
         name: string;
         email: string;

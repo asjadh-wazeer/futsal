@@ -8,7 +8,7 @@ export class OwnerService {
 
   // ── Dashboard ──────────────────────────────────────────────────────
 
-  async getDashboard(businessId: string) {
+  async getDashboard(businessId: string, branchId?: string) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -19,28 +19,32 @@ export class OwnerService {
 
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    const [todayStats, weekStats, monthStats, totalCustomers, recentBookings, courtStats, todayBookings] =
+    const baseWhere = branchId
+      ? { branchId }
+      : { branch: { businessId } };
+
+    const [todayStats, weekStats, monthStats, totalCustomers, recentBookings, courtStats, todayBookings, branches] =
       await Promise.all([
         this.prisma.booking.aggregate({
-          where: { date: { gte: today, lt: tomorrow }, status: { notIn: ['CANCELLED'] }, branch: { businessId } },
+          where: { ...baseWhere, date: { gte: today, lt: tomorrow }, status: { notIn: ['CANCELLED'] } },
           _count: true,
           _sum: { totalAmount: true },
         }),
         this.prisma.booking.aggregate({
-          where: { date: { gte: startOfWeek }, status: { notIn: ['CANCELLED'] }, branch: { businessId } },
+          where: { ...baseWhere, date: { gte: startOfWeek }, status: { notIn: ['CANCELLED'] } },
           _count: true,
           _sum: { totalAmount: true },
         }),
         this.prisma.booking.aggregate({
-          where: { date: { gte: startOfMonth }, status: { notIn: ['CANCELLED'] }, branch: { businessId } },
+          where: { ...baseWhere, date: { gte: startOfMonth }, status: { notIn: ['CANCELLED'] } },
           _count: true,
           _sum: { totalAmount: true },
         }),
         this.prisma.customer.count({
-          where: { bookings: { some: { branch: { businessId } } } },
+          where: { bookings: { some: branchId ? { branchId } : { branch: { businessId } } } },
         }),
         this.prisma.booking.findMany({
-          where: { branch: { businessId } },
+          where: baseWhere,
           include: {
             customer: true,
             court: { include: { sports: true } },
@@ -51,17 +55,18 @@ export class OwnerService {
           take: 10,
         }),
         this.prisma.court.findMany({
-          where: { branch: { businessId }, isActive: true },
+          where: branchId ? { branchId, isActive: true } : { branch: { businessId }, isActive: true },
           include: { sports: true, _count: { select: { bookings: true } } },
         }),
         this.prisma.booking.findMany({
-          where: {
-            date: { gte: today, lt: tomorrow },
-            status: { notIn: ['CANCELLED'] },
-            branch: { businessId },
-          },
-          include: { customer: true, court: { include: { sports: true } } },
+          where: { ...baseWhere, date: { gte: today, lt: tomorrow }, status: { notIn: ['CANCELLED'] } },
+          include: { customer: true, court: { include: { sports: true } }, branch: { select: { name: true } } },
           orderBy: { startTime: 'asc' },
+        }),
+        this.prisma.branch.findMany({
+          where: { businessId },
+          select: { id: true, name: true, city: true, isActive: true },
+          orderBy: { createdAt: 'asc' },
         }),
       ]);
 
@@ -73,6 +78,7 @@ export class OwnerService {
       recentBookings,
       courtStats,
       todaySchedule: todayBookings,
+      branches,
     };
   }
 
@@ -80,9 +86,9 @@ export class OwnerService {
 
   async getAnalytics(
     businessId: string,
-    params: { period?: string; from?: string; to?: string },
+    params: { period?: string; from?: string; to?: string; branchId?: string },
   ) {
-    const { period = 'month', from, to } = params;
+    const { period = 'month', from, to, branchId } = params;
     const now = new Date();
 
     let startDate: Date;
@@ -115,11 +121,15 @@ export class OwnerService {
         startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     }
 
+    const baseWhere = branchId
+      ? { branchId }
+      : { branch: { businessId } };
+
     const bookings = await this.prisma.booking.findMany({
       where: {
+        ...baseWhere,
         date: { gte: startDate, lte: endDate },
         status: { notIn: ['CANCELLED'] },
-        branch: { businessId },
       },
       include: { court: true, sport: true, branch: { select: { name: true } } },
       orderBy: { date: 'asc' },
@@ -128,6 +138,7 @@ export class OwnerService {
     const revenueByDate: Record<string, number> = {};
     const bookingsByDate: Record<string, number> = {};
     const courtRevenue: Record<string, { name: string; revenue: number; count: number }> = {};
+    const branchRevenue: Record<string, { name: string; revenue: number; count: number }> = {};
     const sportCount: Record<string, number> = {};
     const statusCount: Record<string, number> = {};
     const hourCount: Record<number, number> = {};
@@ -145,6 +156,13 @@ export class OwnerService {
       }
       courtRevenue[b.courtId].revenue += Number(b.totalAmount);
       courtRevenue[b.courtId].count += 1;
+
+      const branchName = (b as any).branch?.name || b.branchId;
+      if (!branchRevenue[b.branchId]) {
+        branchRevenue[b.branchId] = { name: branchName, revenue: 0, count: 0 };
+      }
+      branchRevenue[b.branchId].revenue += Number(b.totalAmount);
+      branchRevenue[b.branchId].count += 1;
 
       const sport = (b as any).sport?.name || 'General';
       sportCount[sport] = (sportCount[sport] || 0) + 1;
@@ -168,6 +186,7 @@ export class OwnerService {
         bookings: bookingsByDate[date] || 0,
       })),
       topCourts: Object.values(courtRevenue).sort((a, b) => b.revenue - a.revenue).slice(0, 8),
+      byBranch: Object.values(branchRevenue).sort((a, b) => b.revenue - a.revenue),
       bySport: Object.entries(sportCount).map(([name, count]) => ({ name, count })),
       byStatus: Object.entries(statusCount).map(([status, count]) => ({ status, count })),
       peakHours: Object.entries(hourCount)
@@ -330,11 +349,16 @@ export class OwnerService {
 
   async getBookings(
     businessId: string,
-    filters: { status?: string; date?: string; search?: string; courtId?: string; page?: number; limit?: number },
+    filters: { status?: string; date?: string; search?: string; courtId?: string; branchId?: string; page?: number; limit?: number },
   ) {
-    const { status, date, search, courtId, page = 1, limit = 20 } = filters;
+    const { status, date, search, courtId, branchId, page = 1, limit = 20 } = filters;
     const skip = (page - 1) * limit;
-    const where: any = { branch: { businessId } };
+
+    const baseWhere = branchId
+      ? { branchId }
+      : { branch: { businessId } };
+
+    const where: any = { ...baseWhere };
     if (status) where.status = status;
     if (date) where.date = new Date(date);
     if (courtId) where.courtId = courtId;
@@ -387,7 +411,7 @@ export class OwnerService {
   async getBranches(businessId: string) {
     return this.prisma.branch.findMany({
       where: { businessId },
-      include: { _count: { select: { courts: true, bookings: true } } },
+      include: { _count: { select: { courts: true, bookings: true, staff: true } } },
       orderBy: { createdAt: 'asc' },
     });
   }
@@ -406,7 +430,7 @@ export class OwnerService {
         closeTime: data.closeTime || '22:00',
         slotDuration: data.slotDuration || 60,
       },
-      include: { _count: { select: { courts: true, bookings: true } } },
+      include: { _count: { select: { courts: true, bookings: true, staff: true } } },
     });
   }
 
@@ -427,7 +451,7 @@ export class OwnerService {
         slotDuration: data.slotDuration,
         isActive: data.isActive,
       },
-      include: { _count: { select: { courts: true, bookings: true } } },
+      include: { _count: { select: { courts: true, bookings: true, staff: true } } },
     });
   }
 
@@ -435,6 +459,81 @@ export class OwnerService {
 
   async getSports() {
     return this.prisma.sport.findMany({ where: { isActive: true }, orderBy: { name: 'asc' } });
+  }
+
+  // ── Staff Management (by Owner) ───────────────────────────────────
+
+  async getStaff(businessId: string, branchId?: string) {
+    return this.prisma.admin.findMany({
+      where: {
+        businessId,
+        role: 'STAFF',
+        ...(branchId ? { branchId } : {}),
+      },
+      select: {
+        id: true, name: true, email: true, role: true, isActive: true,
+        branchId: true, createdAt: true,
+        branch: { select: { id: true, name: true, city: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createStaff(businessId: string, data: { name: string; email: string; password: string; branchId: string }) {
+    const branch = await this.prisma.branch.findFirst({ where: { id: data.branchId, businessId } });
+    if (!branch) throw new ForbiddenException('Branch not in your business');
+
+    const existing = await this.prisma.admin.findUnique({ where: { email: data.email } });
+    if (existing) throw new BadRequestException('Email already in use');
+
+    const hashed = await bcrypt.hash(data.password, 10);
+    return this.prisma.admin.create({
+      data: {
+        businessId,
+        name: data.name,
+        email: data.email,
+        password: hashed,
+        role: 'STAFF',
+        branchId: data.branchId,
+      },
+      select: {
+        id: true, name: true, email: true, role: true, isActive: true,
+        branchId: true, createdAt: true,
+        branch: { select: { id: true, name: true, city: true } },
+      },
+    });
+  }
+
+  async updateStaff(staffId: string, businessId: string, data: { name?: string; branchId?: string; isActive?: boolean }) {
+    const staff = await this.prisma.admin.findFirst({ where: { id: staffId, businessId, role: 'STAFF' } });
+    if (!staff) throw new NotFoundException('Staff member not found');
+
+    if (data.branchId) {
+      const branch = await this.prisma.branch.findFirst({ where: { id: data.branchId, businessId } });
+      if (!branch) throw new ForbiddenException('Branch not in your business');
+    }
+
+    return this.prisma.admin.update({
+      where: { id: staffId },
+      data: {
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.branchId !== undefined && { branchId: data.branchId }),
+        ...(data.isActive !== undefined && { isActive: data.isActive }),
+      },
+      select: {
+        id: true, name: true, email: true, role: true, isActive: true,
+        branchId: true, createdAt: true,
+        branch: { select: { id: true, name: true, city: true } },
+      },
+    });
+  }
+
+  async resetStaffPassword(staffId: string, businessId: string, newPassword: string) {
+    const staff = await this.prisma.admin.findFirst({ where: { id: staffId, businessId, role: 'STAFF' } });
+    if (!staff) throw new NotFoundException('Staff member not found');
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await this.prisma.admin.update({ where: { id: staffId }, data: { password: hashed } });
+    return { message: 'Password reset successfully' };
   }
 
   // ── Owner accounts (SUPER_ADMIN) ──────────────────────────────────

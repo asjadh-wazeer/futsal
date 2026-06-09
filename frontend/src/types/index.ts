@@ -130,6 +130,7 @@ export interface Admin {
   name: string;
   email: string;
   role: 'SUPER_ADMIN' | 'ADMIN' | 'OWNER' | 'STAFF';
+  branchId?: string | null;
   isActive?: boolean;
   createdAt?: string;
   business: {
@@ -139,4 +140,15 @@ export interface Admin {
     primaryColor: string;
     currency?: string;
   };
+}
+
+export interface StaffMember {
+  id: string;
+  name: string;
+  email: string;
+  role: 'STAFF';
+  isActive: boolean;
+  branchId: string | null;
+  createdAt: string;
+  branch: { id: string; name: string; city: string } | null;
 }

@@ -2,7 +2,7 @@ import { OwnerService } from './owner.service';
 export declare class OwnerController {
     private service;
     constructor(service: OwnerService);
-    getDashboard(req: any): Promise<{
+    getDashboard(req: any, branchId?: string): Promise<{
         today: {
             bookings: number;
             revenue: number;
@@ -117,6 +117,9 @@ export declare class OwnerController {
             maxDuration: number;
         })[];
         todaySchedule: ({
+            branch: {
+                name: string;
+            };
             court: {
                 sports: {
                     id: string;
@@ -173,8 +176,14 @@ export declare class OwnerController {
             status: import(".prisma/client").$Enums.BookingStatus;
             notes: string | null;
         })[];
+        branches: {
+            id: string;
+            name: string;
+            city: string;
+            isActive: boolean;
+        }[];
     }>;
-    getAnalytics(req: any, period: string, from: string, to: string): Promise<{
+    getAnalytics(req: any, period: string, from: string, to: string, branchId?: string): Promise<{
         summary: {
             totalRevenue: number;
             totalBookings: number;
@@ -186,6 +195,11 @@ export declare class OwnerController {
             bookings: number;
         }[];
         topCourts: {
+            name: string;
+            revenue: number;
+            count: number;
+        }[];
+        byBranch: {
             name: string;
             revenue: number;
             count: number;
@@ -443,7 +457,7 @@ export declare class OwnerController {
         dayOfWeek: number;
         isOpen: boolean;
     }[]>;
-    getBookings(req: any, status: string, date: string, search: string, courtId: string, page: string, limit: string): Promise<{
+    getBookings(req: any, status: string, date: string, search: string, courtId: string, branchId: string, page: string, limit: string): Promise<{
         data: ({
             branch: {
                 name: string;
@@ -545,6 +559,7 @@ export declare class OwnerController {
         _count: {
             courts: number;
             bookings: number;
+            staff: number;
         };
     } & {
         id: string;
@@ -566,6 +581,7 @@ export declare class OwnerController {
         _count: {
             courts: number;
             bookings: number;
+            staff: number;
         };
     } & {
         id: string;
@@ -587,6 +603,7 @@ export declare class OwnerController {
         _count: {
             courts: number;
             bookings: number;
+            staff: number;
         };
     } & {
         id: string;
@@ -614,6 +631,53 @@ export declare class OwnerController {
         icon: string | null;
         color: string;
     }[]>;
+    getStaff(req: any, branchId?: string): Promise<{
+        id: string;
+        name: string;
+        email: string;
+        isActive: boolean;
+        createdAt: Date;
+        branch: {
+            id: string;
+            name: string;
+            city: string;
+        };
+        branchId: string;
+        role: import(".prisma/client").$Enums.AdminRole;
+    }[]>;
+    createStaff(req: any, body: any): Promise<{
+        id: string;
+        name: string;
+        email: string;
+        isActive: boolean;
+        createdAt: Date;
+        branch: {
+            id: string;
+            name: string;
+            city: string;
+        };
+        branchId: string;
+        role: import(".prisma/client").$Enums.AdminRole;
+    }>;
+    updateStaff(req: any, id: string, body: any): Promise<{
+        id: string;
+        name: string;
+        email: string;
+        isActive: boolean;
+        createdAt: Date;
+        branch: {
+            id: string;
+            name: string;
+            city: string;
+        };
+        branchId: string;
+        role: import(".prisma/client").$Enums.AdminRole;
+    }>;
+    resetStaffPassword(req: any, id: string, body: {
+        newPassword: string;
+    }): Promise<{
+        message: string;
+    }>;
     createOwner(body: any): Promise<{
         id: string;
         name: string;

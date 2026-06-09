@@ -10,6 +10,7 @@ export declare class AuthController {
             name: string;
             email: string;
             role: import(".prisma/client").$Enums.AdminRole;
+            branchId: string;
             business: {
                 id: string;
                 name: string;
@@ -29,6 +30,7 @@ export declare class AuthController {
             primaryColor: string;
             currency: string;
         };
+        branchId: string;
         role: import(".prisma/client").$Enums.AdminRole;
     }>;
     changePassword(req: any, body: {

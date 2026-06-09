@@ -26,7 +26,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { sub: admin.id, email: admin.email, role: admin.role, businessId: admin.businessId };
+    const payload = { sub: admin.id, email: admin.email, role: admin.role, businessId: admin.businessId, branchId: admin.branchId ?? null };
     const token = this.jwt.sign(payload);
 
     return {
@@ -36,6 +36,7 @@ export class AuthService {
         name: admin.name,
         email: admin.email,
         role: admin.role,
+        branchId: admin.branchId ?? null,
         business: {
           id: admin.business.id,
           name: admin.business.name,
@@ -54,6 +55,7 @@ export class AuthService {
         name: true,
         email: true,
         role: true,
+        branchId: true,
         business: {
           select: { id: true, name: true, logo: true, primaryColor: true, currency: true },
         },

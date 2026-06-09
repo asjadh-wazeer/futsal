@@ -11,8 +11,9 @@ export class OwnerController {
   constructor(private service: OwnerService) {}
 
   @Get('dashboard')
-  getDashboard(@Request() req) {
-    return this.service.getDashboard(req.user.businessId);
+  getDashboard(@Request() req, @Query('branchId') branchId?: string) {
+    const effectiveBranchId = req.user.role === 'STAFF' ? req.user.branchId : (branchId || undefined);
+    return this.service.getDashboard(req.user.businessId, effectiveBranchId);
   }
 
   @Get('analytics')
@@ -21,8 +22,10 @@ export class OwnerController {
     @Query('period') period: string,
     @Query('from') from: string,
     @Query('to') to: string,
+    @Query('branchId') branchId?: string,
   ) {
-    return this.service.getAnalytics(req.user.businessId, { period, from, to });
+    const effectiveBranchId = req.user.role === 'STAFF' ? req.user.branchId : (branchId || undefined);
+    return this.service.getAnalytics(req.user.businessId, { period, from, to, branchId: effectiveBranchId });
   }
 
   @Get('courts')
@@ -86,11 +89,14 @@ export class OwnerController {
     @Query('date') date: string,
     @Query('search') search: string,
     @Query('courtId') courtId: string,
+    @Query('branchId') branchId: string,
     @Query('page') page: string,
     @Query('limit') limit: string,
   ) {
+    const effectiveBranchId = req.user.role === 'STAFF' ? req.user.branchId : (branchId || undefined);
     return this.service.getBookings(req.user.businessId, {
       status, date, search, courtId,
+      branchId: effectiveBranchId,
       page: page ? parseInt(page) : 1,
       limit: limit ? parseInt(limit) : 20,
     });
@@ -121,7 +127,30 @@ export class OwnerController {
     return this.service.getSports();
   }
 
-  // Owner account management (accessible by SUPER_ADMIN)
+  // ── Staff Management (Owner creates/manages employees) ────────────
+
+  @Get('staff')
+  getStaff(@Request() req, @Query('branchId') branchId?: string) {
+    return this.service.getStaff(req.user.businessId, branchId || undefined);
+  }
+
+  @Post('staff')
+  createStaff(@Request() req, @Body() body: any) {
+    return this.service.createStaff(req.user.businessId, body);
+  }
+
+  @Patch('staff/:id')
+  updateStaff(@Request() req, @Param('id') id: string, @Body() body: any) {
+    return this.service.updateStaff(id, req.user.businessId, body);
+  }
+
+  @Post('staff/:id/reset-password')
+  resetStaffPassword(@Request() req, @Param('id') id: string, @Body() body: { newPassword: string }) {
+    return this.service.resetStaffPassword(id, req.user.businessId, body.newPassword);
+  }
+
+  // ── Owner account management (accessible by SUPER_ADMIN) ─────────
+
   @Post('manage/owners')
   createOwner(@Body() body: any) {
     return this.service.createOwner(body);

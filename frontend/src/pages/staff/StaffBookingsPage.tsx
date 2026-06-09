@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Search, ChevronLeft, ChevronRight, MapPin, LayoutList, CalendarDays } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, CalendarDays, LayoutList } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useSelector } from 'react-redux';
 import { ownerApi } from '../../services/api';
-import { Booking, Branch } from '../../types';
+import { Booking } from '../../types';
+import { RootState } from '../../store';
 import StatusBadge from '../../components/ui/StatusBadge';
 import dayjs from 'dayjs';
 
@@ -21,24 +23,21 @@ const NEXT_STATUS: Record<string, { label: string; value: string; color: string 
 
 type ViewMode = 'list' | 'daily';
 
-export default function OwnerBookingsPage() {
+export default function StaffBookingsPage() {
+  const admin = useSelector((s: RootState) => s.auth.admin);
+  const branchId = admin?.branchId ?? undefined;
+
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
-  const [branches, setBranches] = useState<Branch[]>([]);
+  const [viewMode, setViewMode] = useState<ViewMode>('daily');
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [date, setDate] = useState('');
-  const [selectedBranch, setSelectedBranch] = useState('');
-
-  useEffect(() => {
-    ownerApi.getBranches().then((res) => setBranches(res.data));
-  }, []);
 
   const load = useCallback(async (p = 1) => {
     setLoading(true);
@@ -47,7 +46,7 @@ export default function OwnerBookingsPage() {
         search: search || undefined,
         status: status || undefined,
         date: date || undefined,
-        branchId: selectedBranch || undefined,
+        branchId,
         page: p,
         limit: 20,
       });
@@ -58,7 +57,7 @@ export default function OwnerBookingsPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, status, date, selectedBranch]);
+  }, [search, status, date, branchId]);
 
   useEffect(() => { load(1); }, [load]);
 
@@ -75,7 +74,7 @@ export default function OwnerBookingsPage() {
     }
   };
 
-  // Group bookings by date for daily view
+  // Group for daily view
   const grouped = bookings.reduce<Record<string, Booking[]>>((acc, b) => {
     const key = dayjs(b.date).format('YYYY-MM-DD');
     if (!acc[key]) acc[key] = [];
@@ -84,16 +83,13 @@ export default function OwnerBookingsPage() {
   }, {});
   const groupedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
 
-  const activeBranchName = branches.find((b) => b.id === selectedBranch)?.name;
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Bookings</h2>
-          <p className="text-sm text-gray-500">{total} total bookings{activeBranchName ? ` · ${activeBranchName}` : ''}</p>
+          <p className="text-sm text-gray-500">{total} bookings at your branch</p>
         </div>
-        {/* View mode toggle */}
         <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
           <button
             onClick={() => setViewMode('list')}
@@ -111,8 +107,8 @@ export default function OwnerBookingsPage() {
       </div>
 
       {/* Filters */}
-      <div className="card flex flex-col sm:flex-row gap-3 flex-wrap">
-        <div className="relative flex-1 min-w-[180px]">
+      <div className="card flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
@@ -122,25 +118,12 @@ export default function OwnerBookingsPage() {
             className="input-field pl-9"
           />
         </div>
-        {branches.length > 1 && (
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-            <select
-              value={selectedBranch}
-              onChange={(e) => setSelectedBranch(e.target.value)}
-              className="input-field pl-9 sm:w-44"
-            >
-              <option value="">All Branches</option>
-              {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
-          </div>
-        )}
         <select value={status} onChange={(e) => setStatus(e.target.value)} className="input-field sm:w-40">
           {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s || 'All Statuses'}</option>)}
         </select>
         <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="input-field sm:w-44" />
-        {(search || status || date || selectedBranch) && (
-          <button onClick={() => { setSearch(''); setStatus(''); setDate(''); setSelectedBranch(''); }} className="text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap">
+        {(search || status || date) && (
+          <button onClick={() => { setSearch(''); setStatus(''); setDate(''); }} className="text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap">
             Clear
           </button>
         )}
@@ -162,35 +145,34 @@ export default function OwnerBookingsPage() {
             const isToday = dateKey === dayjs().format('YYYY-MM-DD');
             return (
               <div key={dateKey} className="card p-0 overflow-hidden">
-                <div className={`flex items-center justify-between px-4 py-3 border-b border-gray-100 ${isToday ? 'bg-emerald-50' : 'bg-gray-50'}`}>
+                <div className={`flex items-center justify-between px-4 py-3 border-b border-gray-100 ${isToday ? 'bg-blue-50' : 'bg-gray-50'}`}>
                   <div className="flex items-center gap-2">
-                    <CalendarDays className={`w-4 h-4 ${isToday ? 'text-emerald-600' : 'text-gray-400'}`} />
-                    <span className={`font-bold text-sm ${isToday ? 'text-emerald-700' : 'text-gray-800'}`}>
+                    <CalendarDays className={`w-4 h-4 ${isToday ? 'text-blue-600' : 'text-gray-400'}`} />
+                    <span className={`font-bold text-sm ${isToday ? 'text-blue-700' : 'text-gray-800'}`}>
                       {dayjs(dateKey).format('dddd, D MMMM YYYY')}
-                      {isToday && <span className="ml-2 text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded-full font-semibold">TODAY</span>}
+                      {isToday && <span className="ml-2 text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded-full font-semibold">TODAY</span>}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-gray-500">
                     <span className="font-semibold text-gray-700">{dayBookings.length} booking{dayBookings.length !== 1 ? 's' : ''}</span>
-                    <span className="font-bold text-emerald-600">LKR {dayRevenue.toLocaleString()}</span>
+                    <span className="font-bold text-blue-600">LKR {dayRevenue.toLocaleString()}</span>
                   </div>
                 </div>
                 <div className="divide-y divide-gray-50">
                   {dayBookings.sort((a, b) => a.startTime.localeCompare(b.startTime)).map((b) => (
                     <div key={b.id} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50/50 transition-colors">
                       <div className="text-center w-14 shrink-0">
-                        <p className="text-sm font-bold text-emerald-700">{b.startTime}</p>
+                        <p className="text-sm font-bold text-blue-700">{b.startTime}</p>
                         <p className="text-xs text-gray-400">{b.endTime}</p>
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-gray-900">{b.customer?.name}</p>
                         <p className="text-xs text-gray-500">
                           {b.court?.name}
-                          {!selectedBranch && (b as any).branch?.name && ` · ${(b as any).branch.name}`}
                           {b.customer?.phone && ` · ${b.customer.phone}`}
                         </p>
                       </div>
-                      <div className="flex items-center gap-3 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0">
                         <span className="text-sm font-bold text-gray-900">LKR {Number(b.totalAmount).toLocaleString()}</span>
                         <StatusBadge status={b.status} />
                         <div className="flex gap-1">
@@ -219,11 +201,7 @@ export default function OwnerBookingsPage() {
       {viewMode === 'list' && (
         <div className="card p-0 overflow-hidden">
           {loading ? (
-            <div className="space-y-px">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-16 bg-gray-50 animate-pulse border-b border-gray-100" />
-              ))}
-            </div>
+            <div className="space-y-px">{[1,2,3,4,5].map((i) => <div key={i} className="h-16 bg-gray-50 animate-pulse border-b border-gray-100" />)}</div>
           ) : bookings.length === 0 ? (
             <div className="py-16 text-center text-gray-400">
               <p className="font-medium">No bookings found</p>
@@ -236,7 +214,7 @@ export default function OwnerBookingsPage() {
                   <tr className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-100">
                     <th className="px-4 py-3">Ref</th>
                     <th className="px-4 py-3">Customer</th>
-                    <th className="px-4 py-3">Court{!selectedBranch && branches.length > 1 ? ' / Branch' : ''}</th>
+                    <th className="px-4 py-3">Court</th>
                     <th className="px-4 py-3">Date & Time</th>
                     <th className="px-4 py-3">Amount</th>
                     <th className="px-4 py-3">Status</th>
@@ -255,9 +233,7 @@ export default function OwnerBookingsPage() {
                       </td>
                       <td className="px-4 py-3">
                         <p className="text-sm font-medium text-gray-900">{b.court?.name}</p>
-                        <p className="text-xs text-gray-400">
-                          {!selectedBranch && (b as any).branch?.name ? (b as any).branch.name : b.court?.sports?.[0]?.name}
-                        </p>
+                        <p className="text-xs text-gray-400">{b.court?.sports?.[0]?.name}</p>
                       </td>
                       <td className="px-4 py-3">
                         <p className="text-sm text-gray-900">{dayjs(b.date).format('D MMM YYYY')}</p>
@@ -266,9 +242,7 @@ export default function OwnerBookingsPage() {
                       <td className="px-4 py-3">
                         <span className="text-sm font-semibold text-gray-900">LKR {Number(b.totalAmount).toLocaleString()}</span>
                       </td>
-                      <td className="px-4 py-3">
-                        <StatusBadge status={b.status} />
-                      </td>
+                      <td className="px-4 py-3"><StatusBadge status={b.status} /></td>
                       <td className="px-4 py-3">
                         <div className="flex gap-1.5">
                           {(NEXT_STATUS[b.status] || []).map(({ label, value, color }) => (
@@ -292,7 +266,6 @@ export default function OwnerBookingsPage() {
         </div>
       )}
 
-      {/* Pagination */}
       {pages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500">Page {page} of {pages} · {total} results</p>

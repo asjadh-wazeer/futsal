@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { LayoutDashboard, CalendarDays, Building2, BarChart3, LogOut, Store, X, MapPin } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, Building2, BarChart3, LogOut, Store, X, MapPin, Users } from 'lucide-react';
 import { RootState } from '../../store';
 import { logout } from '../../store/slices/authSlice';
 import clsx from 'clsx';
@@ -11,6 +11,7 @@ const navItems = [
   { to: '/owner/courts', icon: Building2, label: 'Courts' },
   { to: '/owner/bookings', icon: CalendarDays, label: 'Bookings' },
   { to: '/owner/analytics', icon: BarChart3, label: 'Analytics' },
+  { to: '/owner/staff', icon: Users, label: 'Staff' },
 ];
 
 interface Props {

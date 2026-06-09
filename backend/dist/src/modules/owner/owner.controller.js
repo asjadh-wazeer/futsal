@@ -21,11 +21,13 @@ let OwnerController = class OwnerController {
     constructor(service) {
         this.service = service;
     }
-    getDashboard(req) {
-        return this.service.getDashboard(req.user.businessId);
+    getDashboard(req, branchId) {
+        const effectiveBranchId = req.user.role === 'STAFF' ? req.user.branchId : (branchId || undefined);
+        return this.service.getDashboard(req.user.businessId, effectiveBranchId);
     }
-    getAnalytics(req, period, from, to) {
-        return this.service.getAnalytics(req.user.businessId, { period, from, to });
+    getAnalytics(req, period, from, to, branchId) {
+        const effectiveBranchId = req.user.role === 'STAFF' ? req.user.branchId : (branchId || undefined);
+        return this.service.getAnalytics(req.user.businessId, { period, from, to, branchId: effectiveBranchId });
     }
     getCourts(req) {
         return this.service.getCourts(req.user.businessId);
@@ -57,9 +59,11 @@ let OwnerController = class OwnerController {
     upsertSchedule(req, id, body) {
         return this.service.upsertSchedule(id, req.user.businessId, body.schedules);
     }
-    getBookings(req, status, date, search, courtId, page, limit) {
+    getBookings(req, status, date, search, courtId, branchId, page, limit) {
+        const effectiveBranchId = req.user.role === 'STAFF' ? req.user.branchId : (branchId || undefined);
         return this.service.getBookings(req.user.businessId, {
             status, date, search, courtId,
+            branchId: effectiveBranchId,
             page: page ? parseInt(page) : 1,
             limit: limit ? parseInt(limit) : 20,
         });
@@ -79,6 +83,18 @@ let OwnerController = class OwnerController {
     getSports() {
         return this.service.getSports();
     }
+    getStaff(req, branchId) {
+        return this.service.getStaff(req.user.businessId, branchId || undefined);
+    }
+    createStaff(req, body) {
+        return this.service.createStaff(req.user.businessId, body);
+    }
+    updateStaff(req, id, body) {
+        return this.service.updateStaff(id, req.user.businessId, body);
+    }
+    resetStaffPassword(req, id, body) {
+        return this.service.resetStaffPassword(id, req.user.businessId, body.newPassword);
+    }
     createOwner(body) {
         return this.service.createOwner(body);
     }
@@ -96,8 +112,9 @@ exports.OwnerController = OwnerController;
 __decorate([
     (0, common_1.Get)('dashboard'),
     __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('branchId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], OwnerController.prototype, "getDashboard", null);
 __decorate([
@@ -106,8 +123,9 @@ __decorate([
     __param(1, (0, common_1.Query)('period')),
     __param(2, (0, common_1.Query)('from')),
     __param(3, (0, common_1.Query)('to')),
+    __param(4, (0, common_1.Query)('branchId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, String, String]),
+    __metadata("design:paramtypes", [Object, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], OwnerController.prototype, "getAnalytics", null);
 __decorate([
@@ -200,10 +218,11 @@ __decorate([
     __param(2, (0, common_1.Query)('date')),
     __param(3, (0, common_1.Query)('search')),
     __param(4, (0, common_1.Query)('courtId')),
-    __param(5, (0, common_1.Query)('page')),
-    __param(6, (0, common_1.Query)('limit')),
+    __param(5, (0, common_1.Query)('branchId')),
+    __param(6, (0, common_1.Query)('page')),
+    __param(7, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, String, String, String, String, String]),
+    __metadata("design:paramtypes", [Object, String, String, String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], OwnerController.prototype, "getBookings", null);
 __decorate([
@@ -245,6 +264,40 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], OwnerController.prototype, "getSports", null);
+__decorate([
+    (0, common_1.Get)('staff'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('branchId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], OwnerController.prototype, "getStaff", null);
+__decorate([
+    (0, common_1.Post)('staff'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", void 0)
+], OwnerController.prototype, "createStaff", null);
+__decorate([
+    (0, common_1.Patch)('staff/:id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], OwnerController.prototype, "updateStaff", null);
+__decorate([
+    (0, common_1.Post)('staff/:id/reset-password'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], OwnerController.prototype, "resetStaffPassword", null);
 __decorate([
     (0, common_1.Post)('manage/owners'),
     __param(0, (0, common_1.Body)()),

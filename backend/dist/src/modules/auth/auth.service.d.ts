@@ -12,6 +12,7 @@ export declare class AuthService {
             name: string;
             email: string;
             role: import(".prisma/client").$Enums.AdminRole;
+            branchId: string;
             business: {
                 id: string;
                 name: string;
@@ -31,6 +32,7 @@ export declare class AuthService {
             primaryColor: string;
             currency: string;
         };
+        branchId: string;
         role: import(".prisma/client").$Enums.AdminRole;
     }>;
     changePassword(adminId: string, oldPassword: string, newPassword: string): Promise<{
