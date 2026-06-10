@@ -22,6 +22,31 @@ export declare class PaymentController {
         status: string;
     }>;
     confirmCash(bookingId: string): Promise<{
+        court: {
+            sports: {
+                id: string;
+                name: string;
+                description: string | null;
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                icon: string | null;
+                color: string;
+            }[];
+        } & {
+            id: string;
+            name: string;
+            description: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            branchId: string;
+            image: string | null;
+            pricePerHour: import("@prisma/client/runtime/library").Decimal;
+            size: string | null;
+            minDuration: number;
+            maxDuration: number;
+        };
         customer: {
             id: string;
             name: string;
@@ -61,6 +86,8 @@ export declare class PaymentController {
         startTime: string;
         endTime: string;
         duration: number;
+        courtAmount: import("@prisma/client/runtime/library").Decimal;
+        platformFee: import("@prisma/client/runtime/library").Decimal;
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BookingStatus;
         notes: string | null;

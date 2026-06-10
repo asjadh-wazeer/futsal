@@ -14,10 +14,13 @@ const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const customer_service_1 = require("../customer/customer.service");
+const notification_service_1 = require("../notification/notification.service");
+const PLATFORM_FEE_PER_HOUR = Number(process.env.PLATFORM_FEE_PER_HOUR ?? 150);
 let BookingService = class BookingService {
-    constructor(prisma, customerService) {
+    constructor(prisma, customerService, notificationService) {
         this.prisma = prisma;
         this.customerService = customerService;
+        this.notificationService = notificationService;
     }
     generateRef() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -48,7 +51,10 @@ let BookingService = class BookingService {
         const customer = await this.customerService.findOrCreate(dto.customerPhone, dto.customerName, dto.customerEmail);
         const duration = this.calcDuration(dto.startTime, dto.endTime);
         const pricePerHour = await this.resolvePrice(dto.courtId, dto.date, dto.startTime, Number(court.pricePerHour));
-        const totalAmount = (pricePerHour * duration) / 60;
+        const courtAmount = (pricePerHour * duration) / 60;
+        const slots = duration / 60;
+        const platformFee = Math.round(PLATFORM_FEE_PER_HOUR * slots);
+        const totalAmount = courtAmount + platformFee;
         const booking = await this.prisma.booking.create({
             data: {
                 bookingRef: this.generateRef(),
@@ -60,6 +66,8 @@ let BookingService = class BookingService {
                 startTime: dto.startTime,
                 endTime: dto.endTime,
                 duration,
+                courtAmount,
+                platformFee,
                 totalAmount,
                 notes: dto.notes,
                 payment: {
@@ -164,14 +172,17 @@ let BookingService = class BookingService {
         const booking = await this.prisma.booking.update({
             where: { id },
             data: { status: status },
-            include: { customer: true, court: true, payment: true },
+            include: { customer: true, court: { include: { sports: true } }, payment: true },
         });
-        if (status === 'CONFIRMED' && booking.payment) {
-            await this.prisma.payment.update({
-                where: { bookingId: id },
-                data: { status: 'PAID', paidAt: new Date() },
-            });
+        if (status === 'CONFIRMED') {
+            if (booking.payment) {
+                await this.prisma.payment.update({
+                    where: { bookingId: id },
+                    data: { status: 'PAID', paidAt: new Date() },
+                });
+            }
             await this.customerService.updateSpending(booking.customerId, Number(booking.totalAmount));
+            this.notificationService.sendBookingConfirmation(booking).catch(() => { });
         }
         return booking;
     }
@@ -202,6 +213,7 @@ exports.BookingService = BookingService;
 exports.BookingService = BookingService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        customer_service_1.CustomerService])
+        customer_service_1.CustomerService,
+        notification_service_1.NotificationService])
 ], BookingService);
 //# sourceMappingURL=booking.service.js.map

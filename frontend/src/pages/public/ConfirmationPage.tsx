@@ -99,16 +99,30 @@ export default function ConfirmationPage() {
             </div>
           </div>
 
-          <div className="border-t border-gray-100 pt-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs text-gray-500 mb-1">Customer</p>
-              <p className="font-semibold text-gray-900">{booking.customer.name}</p>
-              <p className="text-sm text-gray-500">{booking.customer.phone}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-gray-500 mb-1">Total Amount</p>
-              <p className="text-2xl font-bold text-brand-600">LKR {Number(booking.totalAmount).toLocaleString()}</p>
+          <div className="border-t border-gray-100 pt-4">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="text-xs text-gray-500 mb-1">Customer</p>
+                <p className="font-semibold text-gray-900">{booking.customer.name}</p>
+                <p className="text-sm text-gray-500">{booking.customer.phone}</p>
+              </div>
               <StatusBadge status={booking.payment?.status || 'PENDING'} />
+            </div>
+            <div className="bg-gray-50 rounded-xl p-3 space-y-1.5">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Court fee</span>
+                <span className="text-gray-900">LKR {Number(booking.courtAmount || (Number(booking.totalAmount) - 150)).toLocaleString()}</span>
+              </div>
+              {Number(booking.platformFee) > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Platform fee</span>
+                  <span className="text-gray-900">LKR {Number(booking.platformFee).toLocaleString()}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold text-base border-t border-gray-200 pt-1.5 mt-1.5">
+                <span className="text-gray-900">Total</span>
+                <span className="text-brand-600">LKR {Number(booking.totalAmount).toLocaleString()}</span>
+              </div>
             </div>
           </div>
         </div>

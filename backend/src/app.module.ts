@@ -12,6 +12,8 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { CustomerAuthModule } from './modules/customer-auth/customer-auth.module';
 import { OwnerModule } from './modules/owner/owner.module';
+import { NotificationModule } from './modules/notification/notification.module';
+import { SettlementModule } from './modules/settlement/settlement.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { OwnerModule } from './modules/owner/owner.module';
     PaymentModule,
     CustomerAuthModule,
     OwnerModule,
+    NotificationModule,
+    SettlementModule,
   ],
 })
 export class AppModule {}

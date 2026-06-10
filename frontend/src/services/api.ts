@@ -149,4 +149,14 @@ export const ownerApi = {
   getOwners: () => api.get('/owner/manage/owners'),
   toggleOwnerStatus: (id: string) => api.patch(`/owner/manage/owners/${id}/toggle`),
   getBusinesses: () => api.get('/owner/manage/businesses'),
+
+  getSettlements: (params?: { status?: string; month?: string }) => api.get('/settlement', { params }),
+  getSettlementOutstanding: () => api.get('/settlement/outstanding'),
+};
+
+export const settlementApi = {
+  getAll: (params?: { status?: string; month?: string }) => api.get('/settlement', { params }),
+  getOutstanding: () => api.get('/settlement/outstanding'),
+  generate: (month: string) => api.post(`/settlement/generate/${month}`),
+  markPaid: (id: string, notes?: string) => api.patch(`/settlement/${id}/mark-paid`, { notes }),
 };

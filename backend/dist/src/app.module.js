@@ -21,6 +21,8 @@ const analytics_module_1 = require("./modules/analytics/analytics.module");
 const payment_module_1 = require("./modules/payment/payment.module");
 const customer_auth_module_1 = require("./modules/customer-auth/customer-auth.module");
 const owner_module_1 = require("./modules/owner/owner.module");
+const notification_module_1 = require("./modules/notification/notification.module");
+const settlement_module_1 = require("./modules/settlement/settlement.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -40,6 +42,8 @@ exports.AppModule = AppModule = __decorate([
             payment_module_1.PaymentModule,
             customer_auth_module_1.CustomerAuthModule,
             owner_module_1.OwnerModule,
+            notification_module_1.NotificationModule,
+            settlement_module_1.SettlementModule,
         ],
     })
 ], AppModule);

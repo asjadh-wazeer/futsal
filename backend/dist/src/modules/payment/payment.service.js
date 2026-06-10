@@ -12,10 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PaymentService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const notification_service_1 = require("../notification/notification.service");
 const crypto = require("crypto");
 let PaymentService = class PaymentService {
-    constructor(prisma) {
+    constructor(prisma, notificationService) {
         this.prisma = prisma;
+        this.notificationService = notificationService;
     }
     async initiatePayHere(bookingId) {
         const booking = await this.prisma.booking.findUnique({
@@ -53,26 +55,22 @@ let PaymentService = class PaymentService {
         };
     }
     async handleNotify(body) {
-        const { merchant_id, order_id, payhere_amount, payhere_currency, status_code, md5sig } = body;
+        const { order_id, status_code } = body;
         if (status_code === '2') {
             const booking = await this.prisma.booking.findUnique({
                 where: { bookingRef: order_id },
-                include: { payment: true },
+                include: { payment: true, customer: true, court: { include: { sports: true } } },
             });
             if (booking && booking.payment) {
                 await this.prisma.payment.update({
                     where: { id: booking.payment.id },
-                    data: {
-                        status: 'PAID',
-                        method: 'ONLINE',
-                        transactionId: body.payment_id,
-                        paidAt: new Date(),
-                    },
+                    data: { status: 'PAID', method: 'ONLINE', transactionId: body.payment_id, paidAt: new Date() },
                 });
                 await this.prisma.booking.update({
                     where: { id: booking.id },
                     data: { status: 'CONFIRMED' },
                 });
+                this.notificationService.sendBookingConfirmation(booking).catch(() => { });
             }
         }
         return { status: 'ok' };
@@ -80,7 +78,7 @@ let PaymentService = class PaymentService {
     async confirmCash(bookingId) {
         const booking = await this.prisma.booking.findUnique({
             where: { id: bookingId },
-            include: { payment: true, customer: true },
+            include: { payment: true, customer: true, court: { include: { sports: true } } },
         });
         if (!booking)
             throw new common_1.NotFoundException('Booking not found');
@@ -88,16 +86,19 @@ let PaymentService = class PaymentService {
             where: { bookingId },
             data: { status: 'PAID', method: 'CASH', paidAt: new Date() },
         });
-        return this.prisma.booking.update({
+        const confirmed = await this.prisma.booking.update({
             where: { id: bookingId },
             data: { status: 'CONFIRMED' },
-            include: { payment: true, customer: true },
+            include: { payment: true, customer: true, court: { include: { sports: true } } },
         });
+        this.notificationService.sendBookingConfirmation(confirmed).catch(() => { });
+        return confirmed;
     }
 };
 exports.PaymentService = PaymentService;
 exports.PaymentService = PaymentService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notification_service_1.NotificationService])
 ], PaymentService);
 //# sourceMappingURL=payment.service.js.map

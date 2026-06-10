@@ -88,6 +88,8 @@ export declare class CustomerService {
             startTime: string;
             endTime: string;
             duration: number;
+            courtAmount: import("@prisma/client/runtime/library").Decimal;
+            platformFee: import("@prisma/client/runtime/library").Decimal;
             totalAmount: import("@prisma/client/runtime/library").Decimal;
             status: import(".prisma/client").$Enums.BookingStatus;
             notes: string | null;

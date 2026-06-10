@@ -102,6 +102,8 @@ export interface Booking {
   startTime: string;
   endTime: string;
   duration: number;
+  courtAmount: number;
+  platformFee: number;
   totalAmount: number;
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
   notes?: string;

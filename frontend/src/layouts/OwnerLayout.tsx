@@ -11,6 +11,8 @@ const pageTitles: Record<string, string> = {
   '/owner/courts': 'Courts',
   '/owner/bookings': 'Bookings',
   '/owner/analytics': 'Analytics',
+  '/owner/staff': 'Staff',
+  '/owner/settlements': 'Settlements',
 };
 
 export default function OwnerLayout() {

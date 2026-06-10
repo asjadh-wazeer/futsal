@@ -84,6 +84,8 @@ export declare class BookingController {
         startTime: string;
         endTime: string;
         duration: number;
+        courtAmount: import("@prisma/client/runtime/library").Decimal;
+        platformFee: import("@prisma/client/runtime/library").Decimal;
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BookingStatus;
         notes: string | null;
@@ -169,6 +171,8 @@ export declare class BookingController {
         startTime: string;
         endTime: string;
         duration: number;
+        courtAmount: import("@prisma/client/runtime/library").Decimal;
+        platformFee: import("@prisma/client/runtime/library").Decimal;
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BookingStatus;
         notes: string | null;
@@ -243,6 +247,8 @@ export declare class BookingController {
             startTime: string;
             endTime: string;
             duration: number;
+            courtAmount: import("@prisma/client/runtime/library").Decimal;
+            platformFee: import("@prisma/client/runtime/library").Decimal;
             totalAmount: import("@prisma/client/runtime/library").Decimal;
             status: import(".prisma/client").$Enums.BookingStatus;
             notes: string | null;
@@ -317,6 +323,8 @@ export declare class BookingController {
         startTime: string;
         endTime: string;
         duration: number;
+        courtAmount: import("@prisma/client/runtime/library").Decimal;
+        platformFee: import("@prisma/client/runtime/library").Decimal;
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BookingStatus;
         notes: string | null;
@@ -402,12 +410,25 @@ export declare class BookingController {
         startTime: string;
         endTime: string;
         duration: number;
+        courtAmount: import("@prisma/client/runtime/library").Decimal;
+        platformFee: import("@prisma/client/runtime/library").Decimal;
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BookingStatus;
         notes: string | null;
     }>;
     updateStatus(id: string, status: string): Promise<{
         court: {
+            sports: {
+                id: string;
+                name: string;
+                description: string | null;
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                icon: string | null;
+                color: string;
+            }[];
+        } & {
             id: string;
             name: string;
             description: string | null;
@@ -460,6 +481,8 @@ export declare class BookingController {
         startTime: string;
         endTime: string;
         duration: number;
+        courtAmount: import("@prisma/client/runtime/library").Decimal;
+        platformFee: import("@prisma/client/runtime/library").Decimal;
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BookingStatus;
         notes: string | null;
@@ -545,6 +568,8 @@ export declare class BookingController {
         startTime: string;
         endTime: string;
         duration: number;
+        courtAmount: import("@prisma/client/runtime/library").Decimal;
+        platformFee: import("@prisma/client/runtime/library").Decimal;
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BookingStatus;
         notes: string | null;

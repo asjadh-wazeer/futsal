@@ -1,7 +1,9 @@
 import { PrismaService } from '../../prisma/prisma.service';
+import { NotificationService } from '../notification/notification.service';
 export declare class PaymentService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private notificationService;
+    constructor(prisma: PrismaService, notificationService: NotificationService);
     initiatePayHere(bookingId: string): Promise<{
         merchantId: string;
         orderId: string;
@@ -22,6 +24,31 @@ export declare class PaymentService {
         status: string;
     }>;
     confirmCash(bookingId: string): Promise<{
+        court: {
+            sports: {
+                id: string;
+                name: string;
+                description: string | null;
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                icon: string | null;
+                color: string;
+            }[];
+        } & {
+            id: string;
+            name: string;
+            description: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            branchId: string;
+            image: string | null;
+            pricePerHour: import("@prisma/client/runtime/library").Decimal;
+            size: string | null;
+            minDuration: number;
+            maxDuration: number;
+        };
         customer: {
             id: string;
             name: string;
@@ -61,6 +88,8 @@ export declare class PaymentService {
         startTime: string;
         endTime: string;
         duration: number;
+        courtAmount: import("@prisma/client/runtime/library").Decimal;
+        platformFee: import("@prisma/client/runtime/library").Decimal;
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BookingStatus;
         notes: string | null;

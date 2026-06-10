@@ -2,14 +2,18 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { PaymentMethod } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CustomerService } from '../customer/customer.service';
+import { NotificationService } from '../notification/notification.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { v4 as uuidv4 } from 'uuid';
+
+const PLATFORM_FEE_PER_HOUR = Number(process.env.PLATFORM_FEE_PER_HOUR ?? 150);
 
 @Injectable()
 export class BookingService {
   constructor(
     private prisma: PrismaService,
     private customerService: CustomerService,
+    private notificationService: NotificationService,
   ) {}
 
   private generateRef(): string {
@@ -46,7 +50,10 @@ export class BookingService {
 
     const duration = this.calcDuration(dto.startTime, dto.endTime);
     const pricePerHour = await this.resolvePrice(dto.courtId, dto.date, dto.startTime, Number(court.pricePerHour));
-    const totalAmount = (pricePerHour * duration) / 60;
+    const courtAmount = (pricePerHour * duration) / 60;
+    const slots = duration / 60;
+    const platformFee = Math.round(PLATFORM_FEE_PER_HOUR * slots);
+    const totalAmount = courtAmount + platformFee;
 
     const booking = await this.prisma.booking.create({
       data: {
@@ -59,6 +66,8 @@ export class BookingService {
         startTime: dto.startTime,
         endTime: dto.endTime,
         duration,
+        courtAmount,
+        platformFee,
         totalAmount,
         notes: dto.notes,
         payment: {
@@ -175,15 +184,18 @@ export class BookingService {
     const booking = await this.prisma.booking.update({
       where: { id },
       data: { status: status as any },
-      include: { customer: true, court: true, payment: true },
+      include: { customer: true, court: { include: { sports: true } }, payment: true },
     });
 
-    if (status === 'CONFIRMED' && booking.payment) {
-      await this.prisma.payment.update({
-        where: { bookingId: id },
-        data: { status: 'PAID', paidAt: new Date() },
-      });
+    if (status === 'CONFIRMED') {
+      if (booking.payment) {
+        await this.prisma.payment.update({
+          where: { bookingId: id },
+          data: { status: 'PAID', paidAt: new Date() },
+        });
+      }
       await this.customerService.updateSpending(booking.customerId, Number(booking.totalAmount));
+      this.notificationService.sendBookingConfirmation(booking).catch(() => {});
     }
 
     return booking;

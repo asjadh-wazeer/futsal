@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   LayoutDashboard, CalendarDays, Building2, Users,
-  BarChart3, Settings, LogOut, Zap, MapPin, X, UserCheck
+  BarChart3, Settings, LogOut, Zap, MapPin, X, UserCheck, DollarSign
 } from 'lucide-react';
 import { RootState } from '../../store';
 import { logout } from '../../store/slices/authSlice';
@@ -16,6 +16,7 @@ const navItems = [
   { to: '/admin/customers', icon: Users, label: 'Customers', end: false, roles: null },
   { to: '/admin/analytics', icon: BarChart3, label: 'Analytics', end: false, roles: null },
   { to: '/admin/owners', icon: UserCheck, label: 'Owners', end: false, roles: ['SUPER_ADMIN'] },
+  { to: '/admin/settlements', icon: DollarSign, label: 'Settlements', end: false, roles: ['SUPER_ADMIN', 'ADMIN'] },
   { to: '/admin/settings', icon: Settings, label: 'Settings', end: false, roles: null },
 ];
 

@@ -27,6 +27,7 @@ import AnalyticsPage from './pages/admin/AnalyticsPage';
 import BranchesPage from './pages/admin/BranchesPage';
 import SettingsPage from './pages/admin/SettingsPage';
 import OwnersPage from './pages/admin/OwnersPage';
+import SettlementsPage from './pages/admin/SettlementsPage';
 
 import OwnerLayout from './layouts/OwnerLayout';
 import OwnerLoginPage from './pages/owner/OwnerLoginPage';
@@ -36,6 +37,7 @@ import OwnerCourtsPage from './pages/owner/OwnerCourtsPage';
 import OwnerBookingsPage from './pages/owner/OwnerBookingsPage';
 import OwnerAnalyticsPage from './pages/owner/OwnerAnalyticsPage';
 import OwnerStaffPage from './pages/owner/OwnerStaffPage';
+import OwnerSettlementsPage from './pages/owner/OwnerSettlementsPage';
 
 import StaffLayout from './layouts/StaffLayout';
 import StaffDashboardPage from './pages/staff/StaffDashboardPage';
@@ -109,6 +111,7 @@ export default function App() {
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="owners" element={<OwnersPage />} />
+        <Route path="settlements" element={<SettlementsPage />} />
       </Route>
 
       {/* Owner portal */}
@@ -127,6 +130,7 @@ export default function App() {
         <Route path="bookings" element={<OwnerBookingsPage />} />
         <Route path="analytics" element={<OwnerAnalyticsPage />} />
         <Route path="staff" element={<OwnerStaffPage />} />
+        <Route path="settlements" element={<OwnerSettlementsPage />} />
       </Route>
 
       {/* Staff portal — shares owner login page */}
