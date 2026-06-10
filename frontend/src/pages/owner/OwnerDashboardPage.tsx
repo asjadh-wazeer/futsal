@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { CalendarDays, TrendingUp, Users, Building2, Clock, ArrowRight, MapPin } from 'lucide-react';
+import { CalendarDays, TrendingUp, Users, Building2, Clock, ArrowRight, MapPin, RefreshCw } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Link } from 'react-router-dom';
 import { ownerApi } from '../../services/api';
@@ -71,6 +71,9 @@ export default function OwnerDashboardPage() {
               </select>
             </div>
           )}
+          <button onClick={() => load(selectedBranch || undefined)} className="btn-ghost p-2" title="Refresh">
+            <RefreshCw className="w-4 h-4" />
+          </button>
           <Link to="/owner/bookings" className="hidden sm:flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors">
             All Bookings <ArrowRight className="w-4 h-4" />
           </Link>

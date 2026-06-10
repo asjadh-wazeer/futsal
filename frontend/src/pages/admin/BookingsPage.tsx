@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Search, Filter, Plus, Eye, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { Search, Filter, Eye, RefreshCw } from 'lucide-react';
 import { adminApi } from '../../services/api';
 import StatusBadge from '../../components/ui/StatusBadge';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
@@ -10,6 +9,12 @@ import dayjs from 'dayjs';
 
 const statusOptions = ['', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'NO_SHOW'];
 
+function SourceBadge({ source }: { source?: string }) {
+  return source === 'MANUAL'
+    ? <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-orange-100 text-orange-700 whitespace-nowrap">Manual Booking</span>
+    : <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-sky-100 text-sky-700 whitespace-nowrap">Online Booking</span>;
+}
+
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [total, setTotal] = useState(0);
@@ -18,7 +23,6 @@ export default function BookingsPage() {
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Booking | null>(null);
-  const [updating, setUpdating] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -32,20 +36,6 @@ export default function BookingsPage() {
   };
 
   useEffect(() => { load(); }, [search, status, page]);
-
-  const updateStatus = async (id: string, newStatus: string) => {
-    setUpdating(id);
-    try {
-      await adminApi.updateBookingStatus(id, newStatus);
-      toast.success(`Booking ${newStatus.toLowerCase()}`);
-      load();
-      if (selected?.id === id) setSelected(null);
-    } catch {
-      toast.error('Failed to update booking');
-    } finally {
-      setUpdating(null);
-    }
-  };
 
   const pages = Math.ceil(total / 15);
 
@@ -99,21 +89,24 @@ export default function BookingsPage() {
                 <th className="text-left px-5 py-3 font-semibold text-gray-600 hidden md:table-cell">Court</th>
                 <th className="text-left px-5 py-3 font-semibold text-gray-600 hidden lg:table-cell">Date & Time</th>
                 <th className="text-left px-5 py-3 font-semibold text-gray-600">Amount</th>
+                <th className="text-left px-5 py-3 font-semibold text-gray-600">Source</th>
                 <th className="text-left px-5 py-3 font-semibold text-gray-600">Status</th>
-                <th className="text-left px-5 py-3 font-semibold text-gray-600">Actions</th>
+                <th className="text-left px-5 py-3 font-semibold text-gray-600">Details</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="py-16"><LoadingSpinner /></td></tr>
+                <tr><td colSpan={8} className="py-16"><LoadingSpinner /></td></tr>
               ) : bookings.length === 0 ? (
-                <tr><td colSpan={7} className="py-16 text-center text-gray-400">No bookings found</td></tr>
+                <tr><td colSpan={8} className="py-16 text-center text-gray-400">No bookings found</td></tr>
               ) : bookings.map((b) => (
                 <tr key={b.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-3.5 font-mono text-xs font-bold text-brand-600">{b.bookingRef}</td>
                   <td className="px-5 py-3.5">
                     <p className="font-medium text-gray-900">{b.customer?.name}</p>
                     <p className="text-xs text-gray-500">{b.customer?.phone}</p>
+                    {b.createdByName && <p className="text-[11px] text-orange-600 mt-0.5">Booked by {b.createdByName}</p>}
+                    {b.cancelledByName && <p className="text-[11px] text-red-500 mt-0.5">Cancelled by {b.cancelledByName}</p>}
                   </td>
                   <td className="px-5 py-3.5 hidden md:table-cell">
                     <p className="font-medium text-gray-900">{b.court?.name}</p>
@@ -124,28 +117,16 @@ export default function BookingsPage() {
                     <p className="text-xs text-gray-500">{b.startTime} – {b.endTime}</p>
                   </td>
                   <td className="px-5 py-3.5 font-semibold">LKR {Number(b.totalAmount).toLocaleString()}</td>
+                  <td className="px-5 py-3.5"><SourceBadge source={b.source} /></td>
                   <td className="px-5 py-3.5"><StatusBadge status={b.status} /></td>
                   <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => setSelected(b)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-brand-600 transition-colors" title="View">
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      {b.status === 'PENDING' && (
-                        <>
-                          <button onClick={() => updateStatus(b.id, 'CONFIRMED')} disabled={updating === b.id} className="p-1.5 rounded-lg hover:bg-green-50 text-gray-500 hover:text-green-600 transition-colors" title="Confirm">
-                            <CheckCircle className="w-4 h-4" />
-                          </button>
-                          <button onClick={() => updateStatus(b.id, 'CANCELLED')} disabled={updating === b.id} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-500 hover:text-red-500 transition-colors" title="Cancel">
-                            <XCircle className="w-4 h-4" />
-                          </button>
-                        </>
-                      )}
-                      {b.status === 'CONFIRMED' && (
-                        <button onClick={() => updateStatus(b.id, 'COMPLETED')} disabled={updating === b.id} className="p-1.5 rounded-lg hover:bg-blue-50 text-gray-500 hover:text-blue-600 transition-colors" title="Mark Completed">
-                          <CheckCircle className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
+                    <button
+                      onClick={() => setSelected(b)}
+                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                      title="View details"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -168,33 +149,30 @@ export default function BookingsPage() {
         )}
       </div>
 
-      {/* View Modal */}
+      {/* View Details Modal */}
       <Modal open={!!selected} onClose={() => setSelected(null)} title="Booking Details" size="lg">
         {selected && (
           <div className="space-y-4 text-sm">
             <div className="grid grid-cols-2 gap-4">
               <div><p className="text-gray-500 mb-0.5">Booking Ref</p><p className="font-bold font-mono text-brand-600 text-base">{selected.bookingRef}</p></div>
-              <div><p className="text-gray-500 mb-0.5">Status</p><StatusBadge status={selected.status} /></div>
+              <div className="space-y-1.5">
+                <p className="text-gray-500">Status</p>
+                <div className="flex items-center gap-2">
+                  <StatusBadge status={selected.status} />
+                  <SourceBadge source={selected.source} />
+                </div>
+              </div>
               <div><p className="text-gray-500 mb-0.5">Customer</p><p className="font-semibold">{selected.customer?.name}</p><p className="text-gray-500">{selected.customer?.phone}</p></div>
-              <div><p className="text-gray-500 mb-0.5">Court</p><p className="font-semibold">{selected.court?.name}</p><p className="text-gray-500">{selected.court?.sport?.name}</p></div>
+              <div><p className="text-gray-500 mb-0.5">Court</p><p className="font-semibold">{selected.court?.name}</p></div>
               <div><p className="text-gray-500 mb-0.5">Branch</p><p className="font-semibold">{selected.branch?.name}</p></div>
               <div><p className="text-gray-500 mb-0.5">Date</p><p className="font-semibold">{dayjs(selected.date).format('DD MMM YYYY')}</p></div>
               <div><p className="text-gray-500 mb-0.5">Time</p><p className="font-semibold">{selected.startTime} – {selected.endTime}</p></div>
               <div><p className="text-gray-500 mb-0.5">Amount</p><p className="font-bold text-brand-600 text-base">LKR {Number(selected.totalAmount).toLocaleString()}</p></div>
               <div><p className="text-gray-500 mb-0.5">Payment</p><StatusBadge status={selected.payment?.status || 'PENDING'} /></div>
+              {selected.createdByName && <div><p className="text-gray-500 mb-0.5">Booked by</p><p className="font-semibold text-orange-600">{selected.createdByName}</p></div>}
+              {selected.cancelledByName && <div><p className="text-gray-500 mb-0.5">Cancelled by</p><p className="font-semibold text-red-500">{selected.cancelledByName}</p></div>}
             </div>
             {selected.notes && <div className="p-3 bg-gray-50 rounded-xl"><p className="text-gray-500 text-xs mb-1">Notes</p><p>{selected.notes}</p></div>}
-            <div className="flex gap-2 pt-2">
-              {selected.status === 'PENDING' && (
-                <>
-                  <button onClick={() => updateStatus(selected.id, 'CONFIRMED')} className="btn-primary flex-1">Confirm</button>
-                  <button onClick={() => updateStatus(selected.id, 'CANCELLED')} className="btn-secondary flex-1 text-red-600">Cancel</button>
-                </>
-              )}
-              {selected.status === 'CONFIRMED' && (
-                <button onClick={() => updateStatus(selected.id, 'COMPLETED')} className="btn-primary flex-1">Mark Completed</button>
-              )}
-            </div>
           </div>
         )}
       </Modal>

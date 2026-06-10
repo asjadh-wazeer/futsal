@@ -30,7 +30,8 @@ let OwnerController = class OwnerController {
         return this.service.getAnalytics(req.user.businessId, { period, from, to, branchId: effectiveBranchId });
     }
     getCourts(req) {
-        return this.service.getCourts(req.user.businessId);
+        const branchId = req.user.role === 'STAFF' ? req.user.branchId : undefined;
+        return this.service.getCourts(req.user.businessId, branchId);
     }
     createCourt(req, body) {
         return this.service.createCourt(req.user.businessId, body);
@@ -68,8 +69,17 @@ let OwnerController = class OwnerController {
             limit: limit ? parseInt(limit) : 20,
         });
     }
+    getCourtAvailability(req, id, date) {
+        return this.service.getCourtAvailability(id, date, req.user.businessId);
+    }
+    createManualBooking(req, body) {
+        return this.service.createManualBooking({ businessId: req.user.businessId, role: req.user.role, branchId: req.user.branchId, name: req.user.name }, body);
+    }
     updateBookingStatus(req, id, body) {
-        return this.service.updateBookingStatus(id, req.user.businessId, body.status);
+        const cancelledByName = body.status === 'CANCELLED'
+            ? `${req.user.name} (${req.user.role})`
+            : undefined;
+        return this.service.updateBookingStatus(id, req.user.businessId, body.status, cancelledByName);
     }
     getBranches(req) {
         return this.service.getBranches(req.user.businessId);
@@ -225,6 +235,23 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, String, String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], OwnerController.prototype, "getBookings", null);
+__decorate([
+    (0, common_1.Get)('courts/:id/availability'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Query)('date')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", void 0)
+], OwnerController.prototype, "getCourtAvailability", null);
+__decorate([
+    (0, common_1.Post)('bookings/manual'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", void 0)
+], OwnerController.prototype, "createManualBooking", null);
 __decorate([
     (0, common_1.Patch)('bookings/:id/status'),
     __param(0, (0, common_1.Request)()),

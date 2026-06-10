@@ -69,6 +69,8 @@ let BookingService = class BookingService {
                 courtAmount,
                 platformFee,
                 totalAmount,
+                source: dto.source || 'CUSTOMER',
+                createdByName: dto.createdByName ?? null,
                 notes: dto.notes,
                 payment: {
                     create: {
@@ -168,10 +170,16 @@ let BookingService = class BookingService {
             throw new common_1.NotFoundException('Booking not found');
         return booking;
     }
-    async updateStatus(id, status) {
+    async updateStatus(id, status, cancelledByName) {
         const booking = await this.prisma.booking.update({
             where: { id },
-            data: { status: status },
+            data: {
+                status: status,
+                ...(status === 'CANCELLED' && {
+                    cancelledByName: cancelledByName ?? null,
+                    cancelledAt: new Date(),
+                }),
+            },
             include: { customer: true, court: { include: { sports: true } }, payment: true },
         });
         if (status === 'CONFIRMED') {

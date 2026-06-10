@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { UserPlus, MapPin, KeyRound, Power, X, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, MapPin, KeyRound, Power, X, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { ownerApi } from '../../services/api';
 import { Branch, StaffMember } from '../../types';
@@ -40,14 +40,17 @@ export default function OwnerStaffPage() {
   const [editForm, setEditForm] = useState({ name: '', branchId: '' });
   const [newPassword, setNewPassword] = useState('');
 
-  useEffect(() => {
-    Promise.all([ownerApi.getBranches(), ownerApi.getStaff()])
+  const loadAll = () => {
+    setLoading(true);
+    Promise.all([ownerApi.getBranches(), ownerApi.getStaff(filterBranch ? { branchId: filterBranch } : {})])
       .then(([b, s]) => {
         setBranches(b.data);
         setStaff(s.data);
       })
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { loadAll(); }, []);
 
   const loadStaff = async (branchId?: string) => {
     const res = await ownerApi.getStaff(branchId ? { branchId } : {});
@@ -147,13 +150,18 @@ export default function OwnerStaffPage() {
             {activeBranchName ? ` · ${activeBranchName}` : ' across all branches'}
           </p>
         </div>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors"
-        >
-          <UserPlus className="w-4 h-4" />
-          Add Staff
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={loadAll} className="btn-ghost p-2" title="Refresh">
+            <RefreshCw className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors"
+          >
+            <UserPlus className="w-4 h-4" />
+            Add Staff
+          </button>
+        </div>
       </div>
 
       {/* Branch filter */}

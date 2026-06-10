@@ -115,7 +115,7 @@ export default function SlotSelectPage() {
           <Clock className="w-4 h-4 text-brand-600" />
           <span className="text-sm font-semibold text-gray-700">Available Time Slots</span>
           <div className="flex items-center gap-3 ml-auto text-xs text-gray-500">
-            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-white border-2 border-gray-200 inline-block" />Taken</span>
+            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-red-100 border-2 border-red-300 inline-block" />Booked</span>
             <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-brand-100 border-2 border-brand-400 inline-block" />Available</span>
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function SlotSelectPage() {
                   'py-3 px-2 rounded-xl text-sm font-semibold border-2 transition-all text-center',
                   slot.available
                     ? 'bg-brand-50 border-brand-300 text-brand-700 hover:bg-brand-600 hover:text-white hover:border-brand-600 cursor-pointer'
-                    : 'bg-gray-50 border-gray-200 text-gray-300 cursor-not-allowed'
+                    : 'bg-red-50 border-red-200 text-red-300 cursor-not-allowed'
                 )}
               >
                 {formatTime(slot.time)}

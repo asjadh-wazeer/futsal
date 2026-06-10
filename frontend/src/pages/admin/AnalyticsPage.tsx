@@ -4,7 +4,7 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell, Legend
 } from 'recharts';
-import { TrendingUp, Users, CalendarDays, Clock } from 'lucide-react';
+import { TrendingUp, Users, CalendarDays, Clock, RefreshCw } from 'lucide-react';
 import { adminApi } from '../../services/api';
 import { RootState } from '../../store';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
@@ -20,7 +20,8 @@ export default function AnalyticsPage() {
   const admin = useSelector((s: RootState) => s.auth.admin);
   const currency = admin?.business?.currency || 'LKR';
 
-  useEffect(() => {
+  const load = () => {
+    setLoading(true);
     Promise.all([
       adminApi.getRevenueChart(period),
       adminApi.getBookingStats(),
@@ -30,7 +31,9 @@ export default function AnalyticsPage() {
       setStats(s.data);
       setTopCustomers(c.data);
     }).finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { load(); }, []);
 
   useEffect(() => {
     adminApi.getRevenueChart(period).then((r) => setRevenue(r.data));
@@ -42,9 +45,14 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="page-title">Analytics</h2>
-        <p className="text-sm text-gray-500 mt-0.5">Business performance insights</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="page-title">Analytics</h2>
+          <p className="text-sm text-gray-500 mt-0.5">Business performance insights</p>
+        </div>
+        <button onClick={load} className="btn-ghost p-2" title="Refresh">
+          <RefreshCw className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Revenue Chart */}

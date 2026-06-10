@@ -44,8 +44,11 @@ let BookingController = class BookingController {
     findOne(id) {
         return this.service.findOne(id);
     }
-    updateStatus(id, status) {
-        return this.service.updateStatus(id, status);
+    updateStatus(req, id, status) {
+        const cancelledByName = status === 'CANCELLED' && req.user?.name
+            ? `${req.user.name} (${req.user.role})`
+            : undefined;
+        return this.service.updateStatus(id, status, cancelledByName);
     }
     createManual(req, dto) {
         return this.service.createManual(req.user.sub, dto);
@@ -102,10 +105,11 @@ __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Patch)(':id/status'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)('status')),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)('status')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", void 0)
 ], BookingController.prototype, "updateStatus", null);
 __decorate([

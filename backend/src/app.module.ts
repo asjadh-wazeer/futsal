@@ -14,6 +14,7 @@ import { CustomerAuthModule } from './modules/customer-auth/customer-auth.module
 import { OwnerModule } from './modules/owner/owner.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { SettlementModule } from './modules/settlement/settlement.module';
+import { OwnerRegistrationModule } from './modules/owner-registration/owner-registration.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { SettlementModule } from './modules/settlement/settlement.module';
     OwnerModule,
     NotificationModule,
     SettlementModule,
+    OwnerRegistrationModule,
   ],
 })
 export class AppModule {}

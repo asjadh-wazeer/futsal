@@ -12,12 +12,13 @@ const owner_controller_1 = require("./owner.controller");
 const owner_service_1 = require("./owner.service");
 const prisma_module_1 = require("../../prisma/prisma.module");
 const auth_module_1 = require("../auth/auth.module");
+const booking_module_1 = require("../booking/booking.module");
 let OwnerModule = class OwnerModule {
 };
 exports.OwnerModule = OwnerModule;
 exports.OwnerModule = OwnerModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, auth_module_1.AuthModule],
+        imports: [prisma_module_1.PrismaModule, auth_module_1.AuthModule, booking_module_1.BookingModule],
         controllers: [owner_controller_1.OwnerController],
         providers: [owner_service_1.OwnerService],
         exports: [owner_service_1.OwnerService],

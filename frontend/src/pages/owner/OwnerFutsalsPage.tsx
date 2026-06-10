@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit2, MapPin, Phone, Mail, Clock, Building2, CalendarDays } from 'lucide-react';
+import { Plus, Edit2, MapPin, Phone, Mail, Clock, Building2, CalendarDays, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { ownerApi } from '../../services/api';
 import { Branch } from '../../types';
@@ -20,11 +20,14 @@ export default function OwnerFutsalsPage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
+  const load = () => {
+    setLoading(true);
     ownerApi.getBranches()
       .then((res) => setBranches(res.data))
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { load(); }, []);
 
   const openCreate = () => { setEditing(null); setForm(emptyForm); setShowModal(true); };
   const openEdit = (b: Branch) => {
@@ -83,12 +86,17 @@ export default function OwnerFutsalsPage() {
               : `${branches.length} location${branches.length !== 1 ? 's' : ''} · Each location can have multiple courts`}
           </p>
         </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Add Location
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={load} className="btn-ghost p-2" title="Refresh">
+            <RefreshCw className="w-4 h-4" />
+          </button>
+          <button
+            onClick={openCreate}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors"
+          >
+            <Plus className="w-4 h-4" /> Add Location
+          </button>
+        </div>
       </div>
 
       {branches.length === 0 ? (

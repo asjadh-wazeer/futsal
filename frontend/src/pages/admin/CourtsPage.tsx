@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, Building2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Building2, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { adminApi } from '../../services/api';
 import Modal from '../../components/ui/Modal';
@@ -81,9 +81,14 @@ export default function CourtsPage() {
           <h2 className="page-title">Courts</h2>
           <p className="text-sm text-gray-500 mt-0.5">{courts.length} courts total</p>
         </div>
-        <button onClick={openAdd} className="btn-primary text-sm">
-          <Plus className="w-4 h-4" /> Add Court
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={load} className="btn-ghost p-2" title="Refresh">
+            <RefreshCw className="w-4 h-4" />
+          </button>
+          <button onClick={openAdd} className="btn-primary text-sm">
+            <Plus className="w-4 h-4" /> Add Court
+          </button>
+        </div>
       </div>
 
       {loading ? (

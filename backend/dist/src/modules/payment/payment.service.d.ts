@@ -10,6 +10,7 @@ export declare class PaymentService {
         amount: string;
         currency: string;
         hash: string;
+        checkoutUrl: string;
         mode: string;
         notifyUrl: string;
         returnUrl: string;
@@ -92,6 +93,10 @@ export declare class PaymentService {
         platformFee: import("@prisma/client/runtime/library").Decimal;
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BookingStatus;
+        source: import(".prisma/client").$Enums.BookingSource;
+        createdByName: string | null;
+        cancelledByName: string | null;
+        cancelledAt: Date | null;
         notes: string | null;
     }>;
 }

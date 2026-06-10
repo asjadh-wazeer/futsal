@@ -166,8 +166,12 @@ model Booking {
   platformFee Decimal       @default(0) @db.Decimal(10, 2)
   totalAmount Decimal       @db.Decimal(10, 2)
   status      BookingStatus @default(PENDING)
-  notes       String?
-  payment     Payment?
+  source          BookingSource @default(CUSTOMER)
+  createdByName   String?
+  cancelledByName String?
+  cancelledAt     DateTime?
+  notes           String?
+  payment         Payment?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -182,6 +186,11 @@ enum BookingStatus {
   CANCELLED
   COMPLETED
   NO_SHOW
+}
+
+enum BookingSource {
+  CUSTOMER
+  MANUAL
 }
 
 model Payment {
@@ -259,4 +268,30 @@ model Settlement {
 enum SettlementStatus {
   PENDING
   PAID
+}
+
+model OwnerRegistration {
+  id              String             @id @default(cuid())
+  name            String
+  email           String
+  phone           String?
+  password        String
+  businessName    String
+  businessCity    String
+  businessAddress String
+  businessPhone   String?
+  businessEmail   String?
+  status          RegistrationStatus @default(PENDING)
+  rejectionReason String?
+  reviewedAt      DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@map("owner_registrations")
+}
+
+enum RegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

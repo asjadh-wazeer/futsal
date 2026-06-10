@@ -31,6 +31,7 @@ import SettlementsPage from './pages/admin/SettlementsPage';
 
 import OwnerLayout from './layouts/OwnerLayout';
 import OwnerLoginPage from './pages/owner/OwnerLoginPage';
+import OwnerRegisterPage from './pages/public/OwnerRegisterPage';
 import OwnerDashboardPage from './pages/owner/OwnerDashboardPage';
 import OwnerFutsalsPage from './pages/owner/OwnerFutsalsPage';
 import OwnerCourtsPage from './pages/owner/OwnerCourtsPage';
@@ -116,6 +117,7 @@ export default function App() {
 
       {/* Owner portal */}
       <Route path="/owner/login" element={<OwnerLoginPage />} />
+      <Route path="/owner/register" element={<OwnerRegisterPage />} />
       <Route
         path="/owner"
         element={

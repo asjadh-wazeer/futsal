@@ -64,6 +64,7 @@ export const publicApi = {
   getAvailability: (courtId: string, date: string) => api.get(`/courts/${courtId}/availability`, { params: { date } }),
   createBooking: (data: any) => api.post('/bookings', data),
   getBookingByRef: (ref: string) => api.get(`/bookings/ref/${ref}`),
+  initiatePayment: (bookingId: string) => api.get(`/payment/initiate/${bookingId}`),
   getPublicSettings: (slug: string) => api.get(`/business/public/${slug}`),
   getSports: () => api.get('/sports'),
 };
@@ -130,7 +131,9 @@ export const ownerApi = {
   upsertSchedule: (courtId: string, schedules: any[]) =>
     api.put(`/owner/courts/${courtId}/schedule`, { schedules }),
 
+  getCourtAvailability: (courtId: string, date: string) => api.get(`/owner/courts/${courtId}/availability`, { params: { date } }),
   getBookings: (params?: any) => api.get('/owner/bookings', { params }),
+  createManualBooking: (data: any) => api.post('/owner/bookings/manual', data),
   updateBookingStatus: (id: string, status: string) =>
     api.patch(`/owner/bookings/${id}/status`, { status }),
 
@@ -152,6 +155,13 @@ export const ownerApi = {
 
   getSettlements: (params?: { status?: string; month?: string }) => api.get('/settlement', { params }),
   getSettlementOutstanding: () => api.get('/settlement/outstanding'),
+};
+
+export const ownerRegistrationApi = {
+  register: (data: any) => api.post('/owner-registration', data),
+  getAll: () => api.get('/owner-registration'),
+  approve: (id: string) => api.patch(`/owner-registration/${id}/approve`),
+  reject: (id: string, reason?: string) => api.patch(`/owner-registration/${id}/reject`, { reason }),
 };
 
 export const settlementApi = {

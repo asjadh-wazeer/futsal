@@ -23,37 +23,37 @@ export declare class OwnerController {
             court: {
                 sports: {
                     id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
                     name: string;
                     description: string | null;
                     isActive: boolean;
-                    createdAt: Date;
-                    updatedAt: Date;
                     icon: string | null;
                     color: string;
                 }[];
             } & {
                 id: string;
-                name: string;
-                description: string | null;
-                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
                 branchId: string;
+                name: string;
+                description: string | null;
                 image: string | null;
                 pricePerHour: import("@prisma/client/runtime/library").Decimal;
                 size: string | null;
                 minDuration: number;
                 maxDuration: number;
+                isActive: boolean;
             };
             customer: {
                 id: string;
-                name: string;
-                phone: string | null;
-                email: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                password: string | null;
+                name: string;
+                email: string | null;
+                phone: string | null;
                 googleId: string | null;
+                password: string | null;
                 avatarUrl: string | null;
                 isVerified: boolean;
                 totalSpent: import("@prisma/client/runtime/library").Decimal;
@@ -61,9 +61,9 @@ export declare class OwnerController {
             };
             payment: {
                 id: string;
+                status: import(".prisma/client").$Enums.PaymentStatus;
                 createdAt: Date;
                 updatedAt: Date;
-                status: import(".prisma/client").$Enums.PaymentStatus;
                 amount: import("@prisma/client/runtime/library").Decimal;
                 method: import(".prisma/client").$Enums.PaymentMethod;
                 transactionId: string | null;
@@ -73,13 +73,7 @@ export declare class OwnerController {
             };
         } & {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            branchId: string;
-            sportId: string | null;
             bookingRef: string;
-            courtId: string;
-            customerId: string;
             date: Date;
             startTime: string;
             endTime: string;
@@ -88,16 +82,26 @@ export declare class OwnerController {
             platformFee: import("@prisma/client/runtime/library").Decimal;
             totalAmount: import("@prisma/client/runtime/library").Decimal;
             status: import(".prisma/client").$Enums.BookingStatus;
+            source: import(".prisma/client").$Enums.BookingSource;
+            createdByName: string | null;
+            cancelledByName: string | null;
+            cancelledAt: Date | null;
             notes: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            branchId: string;
+            courtId: string;
+            customerId: string;
+            sportId: string | null;
         })[];
         courtStats: ({
             sports: {
                 id: string;
+                createdAt: Date;
+                updatedAt: Date;
                 name: string;
                 description: string | null;
                 isActive: boolean;
-                createdAt: Date;
-                updatedAt: Date;
                 icon: string | null;
                 color: string;
             }[];
@@ -106,17 +110,17 @@ export declare class OwnerController {
             };
         } & {
             id: string;
-            name: string;
-            description: string | null;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
             branchId: string;
+            name: string;
+            description: string | null;
             image: string | null;
             pricePerHour: import("@prisma/client/runtime/library").Decimal;
             size: string | null;
             minDuration: number;
             maxDuration: number;
+            isActive: boolean;
         })[];
         todaySchedule: ({
             branch: {
@@ -125,37 +129,37 @@ export declare class OwnerController {
             court: {
                 sports: {
                     id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
                     name: string;
                     description: string | null;
                     isActive: boolean;
-                    createdAt: Date;
-                    updatedAt: Date;
                     icon: string | null;
                     color: string;
                 }[];
             } & {
                 id: string;
-                name: string;
-                description: string | null;
-                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
                 branchId: string;
+                name: string;
+                description: string | null;
                 image: string | null;
                 pricePerHour: import("@prisma/client/runtime/library").Decimal;
                 size: string | null;
                 minDuration: number;
                 maxDuration: number;
+                isActive: boolean;
             };
             customer: {
                 id: string;
-                name: string;
-                phone: string | null;
-                email: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                password: string | null;
+                name: string;
+                email: string | null;
+                phone: string | null;
                 googleId: string | null;
+                password: string | null;
                 avatarUrl: string | null;
                 isVerified: boolean;
                 totalSpent: import("@prisma/client/runtime/library").Decimal;
@@ -163,13 +167,7 @@ export declare class OwnerController {
             };
         } & {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            branchId: string;
-            sportId: string | null;
             bookingRef: string;
-            courtId: string;
-            customerId: string;
             date: Date;
             startTime: string;
             endTime: string;
@@ -178,13 +176,23 @@ export declare class OwnerController {
             platformFee: import("@prisma/client/runtime/library").Decimal;
             totalAmount: import("@prisma/client/runtime/library").Decimal;
             status: import(".prisma/client").$Enums.BookingStatus;
+            source: import(".prisma/client").$Enums.BookingSource;
+            createdByName: string | null;
+            cancelledByName: string | null;
+            cancelledAt: Date | null;
             notes: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            branchId: string;
+            courtId: string;
+            customerId: string;
+            sportId: string | null;
         })[];
         branches: {
             id: string;
             name: string;
-            city: string;
             isActive: boolean;
+            city: string;
         }[];
     }>;
     getAnalytics(req: any, period: string, from: string, to: string, branchId?: string): Promise<{
@@ -229,32 +237,32 @@ export declare class OwnerController {
         };
         sports: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             name: string;
             description: string | null;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
             icon: string | null;
             color: string;
         }[];
         pricingRules: {
             id: string;
-            name: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            pricePerHour: import("@prisma/client/runtime/library").Decimal;
             courtId: string;
+            name: string;
+            pricePerHour: import("@prisma/client/runtime/library").Decimal;
+            isActive: boolean;
+            priority: number;
             dayType: import(".prisma/client").$Enums.DayType;
             startHour: number;
             endHour: number;
-            priority: number;
         }[];
         schedules: {
             id: string;
+            courtId: string;
             openTime: string;
             closeTime: string;
-            courtId: string;
             dayOfWeek: number;
             isOpen: boolean;
         }[];
@@ -263,17 +271,17 @@ export declare class OwnerController {
         };
     } & {
         id: string;
-        name: string;
-        description: string | null;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
         branchId: string;
+        name: string;
+        description: string | null;
         image: string | null;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
         size: string | null;
         minDuration: number;
         maxDuration: number;
+        isActive: boolean;
     })[]>;
     createCourt(req: any, body: any): Promise<{
         branch: {
@@ -282,40 +290,40 @@ export declare class OwnerController {
         };
         sports: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             name: string;
             description: string | null;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
             icon: string | null;
             color: string;
         }[];
     } & {
         id: string;
-        name: string;
-        description: string | null;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
         branchId: string;
+        name: string;
+        description: string | null;
         image: string | null;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
         size: string | null;
         minDuration: number;
         maxDuration: number;
+        isActive: boolean;
     }>;
     getCourt(req: any, id: string): Promise<{
         branch: {
             id: string;
-            name: string;
-            phone: string | null;
-            email: string | null;
-            address: string;
-            city: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            isActive: boolean;
+            email: string | null;
+            phone: string | null;
             businessId: string;
+            address: string;
+            city: string;
             mapUrl: string | null;
             openTime: string;
             closeTime: string;
@@ -323,131 +331,131 @@ export declare class OwnerController {
         };
         sports: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             name: string;
             description: string | null;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
             icon: string | null;
             color: string;
         }[];
         pricingRules: {
             id: string;
-            name: string;
-            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            pricePerHour: import("@prisma/client/runtime/library").Decimal;
             courtId: string;
+            name: string;
+            pricePerHour: import("@prisma/client/runtime/library").Decimal;
+            isActive: boolean;
+            priority: number;
             dayType: import(".prisma/client").$Enums.DayType;
             startHour: number;
             endHour: number;
-            priority: number;
         }[];
         schedules: {
             id: string;
+            courtId: string;
             openTime: string;
             closeTime: string;
-            courtId: string;
             dayOfWeek: number;
             isOpen: boolean;
         }[];
     } & {
         id: string;
-        name: string;
-        description: string | null;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
         branchId: string;
+        name: string;
+        description: string | null;
         image: string | null;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
         size: string | null;
         minDuration: number;
         maxDuration: number;
+        isActive: boolean;
     }>;
     updateCourt(req: any, id: string, body: any): Promise<{
         sports: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             name: string;
             description: string | null;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
             icon: string | null;
             color: string;
         }[];
     } & {
         id: string;
-        name: string;
-        description: string | null;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
         branchId: string;
+        name: string;
+        description: string | null;
         image: string | null;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
         size: string | null;
         minDuration: number;
         maxDuration: number;
+        isActive: boolean;
     }>;
     getPricingRules(req: any, id: string): Promise<{
         id: string;
-        name: string;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        pricePerHour: import("@prisma/client/runtime/library").Decimal;
         courtId: string;
+        name: string;
+        pricePerHour: import("@prisma/client/runtime/library").Decimal;
+        isActive: boolean;
+        priority: number;
         dayType: import(".prisma/client").$Enums.DayType;
         startHour: number;
         endHour: number;
-        priority: number;
     }[]>;
     createPricingRule(req: any, id: string, body: any): Promise<{
         id: string;
-        name: string;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        pricePerHour: import("@prisma/client/runtime/library").Decimal;
         courtId: string;
+        name: string;
+        pricePerHour: import("@prisma/client/runtime/library").Decimal;
+        isActive: boolean;
+        priority: number;
         dayType: import(".prisma/client").$Enums.DayType;
         startHour: number;
         endHour: number;
-        priority: number;
     }>;
     updatePricingRule(req: any, ruleId: string, body: any): Promise<{
         id: string;
-        name: string;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        pricePerHour: import("@prisma/client/runtime/library").Decimal;
         courtId: string;
+        name: string;
+        pricePerHour: import("@prisma/client/runtime/library").Decimal;
+        isActive: boolean;
+        priority: number;
         dayType: import(".prisma/client").$Enums.DayType;
         startHour: number;
         endHour: number;
-        priority: number;
     }>;
     deletePricingRule(req: any, ruleId: string): Promise<{
         id: string;
-        name: string;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        pricePerHour: import("@prisma/client/runtime/library").Decimal;
         courtId: string;
+        name: string;
+        pricePerHour: import("@prisma/client/runtime/library").Decimal;
+        isActive: boolean;
+        priority: number;
         dayType: import(".prisma/client").$Enums.DayType;
         startHour: number;
         endHour: number;
-        priority: number;
     }>;
     getSchedule(req: any, id: string): Promise<{
         id: string;
+        courtId: string;
         openTime: string;
         closeTime: string;
-        courtId: string;
         dayOfWeek: number;
         isOpen: boolean;
     }[]>;
@@ -455,9 +463,9 @@ export declare class OwnerController {
         schedules: any[];
     }): Promise<{
         id: string;
+        courtId: string;
         openTime: string;
         closeTime: string;
-        courtId: string;
         dayOfWeek: number;
         isOpen: boolean;
     }[]>;
@@ -470,37 +478,37 @@ export declare class OwnerController {
             court: {
                 sports: {
                     id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
                     name: string;
                     description: string | null;
                     isActive: boolean;
-                    createdAt: Date;
-                    updatedAt: Date;
                     icon: string | null;
                     color: string;
                 }[];
             } & {
                 id: string;
-                name: string;
-                description: string | null;
-                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
                 branchId: string;
+                name: string;
+                description: string | null;
                 image: string | null;
                 pricePerHour: import("@prisma/client/runtime/library").Decimal;
                 size: string | null;
                 minDuration: number;
                 maxDuration: number;
+                isActive: boolean;
             };
             customer: {
                 id: string;
-                name: string;
-                phone: string | null;
-                email: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                password: string | null;
+                name: string;
+                email: string | null;
+                phone: string | null;
                 googleId: string | null;
+                password: string | null;
                 avatarUrl: string | null;
                 isVerified: boolean;
                 totalSpent: import("@prisma/client/runtime/library").Decimal;
@@ -508,9 +516,9 @@ export declare class OwnerController {
             };
             payment: {
                 id: string;
+                status: import(".prisma/client").$Enums.PaymentStatus;
                 createdAt: Date;
                 updatedAt: Date;
-                status: import(".prisma/client").$Enums.PaymentStatus;
                 amount: import("@prisma/client/runtime/library").Decimal;
                 method: import(".prisma/client").$Enums.PaymentMethod;
                 transactionId: string | null;
@@ -520,13 +528,7 @@ export declare class OwnerController {
             };
         } & {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            branchId: string;
-            sportId: string | null;
             bookingRef: string;
-            courtId: string;
-            customerId: string;
             date: Date;
             startTime: string;
             endTime: string;
@@ -535,24 +537,104 @@ export declare class OwnerController {
             platformFee: import("@prisma/client/runtime/library").Decimal;
             totalAmount: import("@prisma/client/runtime/library").Decimal;
             status: import(".prisma/client").$Enums.BookingStatus;
+            source: import(".prisma/client").$Enums.BookingSource;
+            createdByName: string | null;
+            cancelledByName: string | null;
+            cancelledAt: Date | null;
             notes: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            branchId: string;
+            courtId: string;
+            customerId: string;
+            sportId: string | null;
         })[];
         total: number;
         page: number;
         limit: number;
         pages: number;
     }>;
-    updateBookingStatus(req: any, id: string, body: {
-        status: string;
-    }): Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        branchId: string;
-        sportId: string | null;
-        bookingRef: string;
+    getCourtAvailability(req: any, id: string, date: string): Promise<{
         courtId: string;
-        customerId: string;
+        date: string;
+        slots: {
+            time: string;
+            endTime: string;
+            available: boolean;
+            bookingSource: string | null;
+        }[];
+    }>;
+    createManualBooking(req: any, body: any): Promise<{
+        branch: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
+            isActive: boolean;
+            email: string | null;
+            phone: string | null;
+            businessId: string;
+            address: string;
+            city: string;
+            mapUrl: string | null;
+            openTime: string;
+            closeTime: string;
+            slotDuration: number;
+        };
+        court: {
+            sports: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                name: string;
+                description: string | null;
+                isActive: boolean;
+                icon: string | null;
+                color: string;
+            }[];
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            branchId: string;
+            name: string;
+            description: string | null;
+            image: string | null;
+            pricePerHour: import("@prisma/client/runtime/library").Decimal;
+            size: string | null;
+            minDuration: number;
+            maxDuration: number;
+            isActive: boolean;
+        };
+        customer: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
+            email: string | null;
+            phone: string | null;
+            googleId: string | null;
+            password: string | null;
+            avatarUrl: string | null;
+            isVerified: boolean;
+            totalSpent: import("@prisma/client/runtime/library").Decimal;
+            visitCount: number;
+        };
+        payment: {
+            id: string;
+            status: import(".prisma/client").$Enums.PaymentStatus;
+            createdAt: Date;
+            updatedAt: Date;
+            amount: import("@prisma/client/runtime/library").Decimal;
+            method: import(".prisma/client").$Enums.PaymentMethod;
+            transactionId: string | null;
+            gatewayRef: string | null;
+            paidAt: Date | null;
+            bookingId: string;
+        };
+    } & {
+        id: string;
+        bookingRef: string;
         date: Date;
         startTime: string;
         endTime: string;
@@ -561,25 +643,60 @@ export declare class OwnerController {
         platformFee: import("@prisma/client/runtime/library").Decimal;
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         status: import(".prisma/client").$Enums.BookingStatus;
+        source: import(".prisma/client").$Enums.BookingSource;
+        createdByName: string | null;
+        cancelledByName: string | null;
+        cancelledAt: Date | null;
         notes: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        branchId: string;
+        courtId: string;
+        customerId: string;
+        sportId: string | null;
+    }>;
+    updateBookingStatus(req: any, id: string, body: {
+        status: string;
+    }): Promise<{
+        id: string;
+        bookingRef: string;
+        date: Date;
+        startTime: string;
+        endTime: string;
+        duration: number;
+        courtAmount: import("@prisma/client/runtime/library").Decimal;
+        platformFee: import("@prisma/client/runtime/library").Decimal;
+        totalAmount: import("@prisma/client/runtime/library").Decimal;
+        status: import(".prisma/client").$Enums.BookingStatus;
+        source: import(".prisma/client").$Enums.BookingSource;
+        createdByName: string | null;
+        cancelledByName: string | null;
+        cancelledAt: Date | null;
+        notes: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        branchId: string;
+        courtId: string;
+        customerId: string;
+        sportId: string | null;
     }>;
     getBranches(req: any): Promise<({
         _count: {
-            courts: number;
             bookings: number;
+            courts: number;
             staff: number;
         };
     } & {
         id: string;
-        name: string;
-        phone: string | null;
-        email: string | null;
-        address: string;
-        city: string;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        isActive: boolean;
+        email: string | null;
+        phone: string | null;
         businessId: string;
+        address: string;
+        city: string;
         mapUrl: string | null;
         openTime: string;
         closeTime: string;
@@ -587,21 +704,21 @@ export declare class OwnerController {
     })[]>;
     createBranch(req: any, body: any): Promise<{
         _count: {
-            courts: number;
             bookings: number;
+            courts: number;
             staff: number;
         };
     } & {
         id: string;
-        name: string;
-        phone: string | null;
-        email: string | null;
-        address: string;
-        city: string;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        isActive: boolean;
+        email: string | null;
+        phone: string | null;
         businessId: string;
+        address: string;
+        city: string;
         mapUrl: string | null;
         openTime: string;
         closeTime: string;
@@ -609,21 +726,21 @@ export declare class OwnerController {
     }>;
     updateBranch(req: any, id: string, body: any): Promise<{
         _count: {
-            courts: number;
             bookings: number;
+            courts: number;
             staff: number;
         };
     } & {
         id: string;
-        name: string;
-        phone: string | null;
-        email: string | null;
-        address: string;
-        city: string;
-        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        isActive: boolean;
+        email: string | null;
+        phone: string | null;
         businessId: string;
+        address: string;
+        city: string;
         mapUrl: string | null;
         openTime: string;
         closeTime: string;
@@ -631,19 +748,16 @@ export declare class OwnerController {
     }>;
     getSports(): Promise<{
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
         name: string;
         description: string | null;
         isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
         icon: string | null;
         color: string;
     }[]>;
     getStaff(req: any, branchId?: string): Promise<{
         id: string;
-        name: string;
-        email: string;
-        isActive: boolean;
         createdAt: Date;
         branch: {
             id: string;
@@ -651,13 +765,13 @@ export declare class OwnerController {
             city: string;
         };
         branchId: string;
+        name: string;
+        isActive: boolean;
+        email: string;
         role: import(".prisma/client").$Enums.AdminRole;
     }[]>;
     createStaff(req: any, body: any): Promise<{
         id: string;
-        name: string;
-        email: string;
-        isActive: boolean;
         createdAt: Date;
         branch: {
             id: string;
@@ -665,13 +779,13 @@ export declare class OwnerController {
             city: string;
         };
         branchId: string;
+        name: string;
+        isActive: boolean;
+        email: string;
         role: import(".prisma/client").$Enums.AdminRole;
     }>;
     updateStaff(req: any, id: string, body: any): Promise<{
         id: string;
-        name: string;
-        email: string;
-        isActive: boolean;
         createdAt: Date;
         branch: {
             id: string;
@@ -679,6 +793,9 @@ export declare class OwnerController {
             city: string;
         };
         branchId: string;
+        name: string;
+        isActive: boolean;
+        email: string;
         role: import(".prisma/client").$Enums.AdminRole;
     }>;
     resetStaffPassword(req: any, id: string, body: {
@@ -688,10 +805,10 @@ export declare class OwnerController {
     }>;
     createOwner(body: any): Promise<{
         id: string;
-        name: string;
-        email: string;
-        isActive: boolean;
         createdAt: Date;
+        name: string;
+        isActive: boolean;
+        email: string;
         business: {
             id: string;
             name: string;
@@ -700,10 +817,10 @@ export declare class OwnerController {
     }>;
     getOwners(): Promise<{
         id: string;
-        name: string;
-        email: string;
-        isActive: boolean;
         createdAt: Date;
+        name: string;
+        isActive: boolean;
+        email: string;
         business: {
             id: string;
             name: string;
@@ -713,8 +830,8 @@ export declare class OwnerController {
     toggleOwnerStatus(id: string): Promise<{
         id: string;
         name: string;
-        email: string;
         isActive: boolean;
+        email: string;
     }>;
     getBusinesses(): Promise<{
         id: string;

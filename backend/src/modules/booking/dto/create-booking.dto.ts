@@ -45,4 +45,14 @@ export class CreateBookingDto {
   @IsOptional()
   @IsString()
   sportId?: string;
+
+  @ApiProperty({ required: false, enum: ['CUSTOMER', 'MANUAL'] })
+  @IsOptional()
+  @IsString()
+  source?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  createdByName?: string;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Search, Users, Eye, Phone, Mail, TrendingUp } from 'lucide-react';
+import { Search, Users, Eye, Phone, Mail, TrendingUp, RefreshCw } from 'lucide-react';
 import { adminApi } from '../../services/api';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import Modal from '../../components/ui/Modal';
@@ -35,6 +35,9 @@ export default function CustomersPage() {
           <h2 className="page-title">Customers</h2>
           <p className="text-sm text-gray-500 mt-0.5">{customers.length} total customers</p>
         </div>
+        <button onClick={load} className="btn-ghost p-2" title="Refresh">
+          <RefreshCw className="w-4 h-4" />
+        </button>
       </div>
 
       <div className="card py-4">

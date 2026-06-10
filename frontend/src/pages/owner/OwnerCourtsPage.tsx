@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Tag, Calendar, Building2, CheckCircle, XCircle, ChevronDown } from 'lucide-react';
+import { Plus, Edit2, Trash2, Tag, Calendar, Building2, CheckCircle, XCircle, ChevronDown, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { ownerApi } from '../../services/api';
 import { Court, PricingRule, CourtSchedule, Sport, Branch } from '../../types';
@@ -47,7 +47,8 @@ export default function OwnerCourtsPage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
+  const load = () => {
+    setLoading(true);
     Promise.all([ownerApi.getCourts(), ownerApi.getSports(), ownerApi.getBranches()])
       .then(([c, s, b]) => {
         setCourts(c.data);
@@ -55,7 +56,9 @@ export default function OwnerCourtsPage() {
         setBranches(b.data);
       })
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { load(); }, []);
 
   const openEdit = async (court: Court) => {
     setEditCourt(court);
@@ -194,9 +197,14 @@ export default function OwnerCourtsPage() {
           <h2 className="text-xl font-bold text-gray-900">My Courts</h2>
           <p className="text-sm text-gray-500">{courts.length} court{courts.length !== 1 ? 's' : ''} · Manage pricing &amp; availability</p>
         </div>
-        <button onClick={() => { setForm(emptyForm); setShowCreate(true); }} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors">
-          <Plus className="w-4 h-4" /> Add Court
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={load} className="btn-ghost p-2" title="Refresh">
+            <RefreshCw className="w-4 h-4" />
+          </button>
+          <button onClick={() => { setForm(emptyForm); setShowCreate(true); }} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors">
+            <Plus className="w-4 h-4" /> Add Court
+          </button>
+        </div>
       </div>
 
       {/* Courts grid */}

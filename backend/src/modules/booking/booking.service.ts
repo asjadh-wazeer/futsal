@@ -69,6 +69,8 @@ export class BookingService {
         courtAmount,
         platformFee,
         totalAmount,
+        source: (dto.source as any) || 'CUSTOMER',
+        createdByName: dto.createdByName ?? null,
         notes: dto.notes,
         payment: {
           create: {
@@ -180,10 +182,16 @@ export class BookingService {
     return booking;
   }
 
-  async updateStatus(id: string, status: string) {
+  async updateStatus(id: string, status: string, cancelledByName?: string) {
     const booking = await this.prisma.booking.update({
       where: { id },
-      data: { status: status as any },
+      data: {
+        status: status as any,
+        ...(status === 'CANCELLED' && {
+          cancelledByName: cancelledByName ?? null,
+          cancelledAt: new Date(),
+        }),
+      },
       include: { customer: true, court: { include: { sports: true } }, payment: true },
     });
 

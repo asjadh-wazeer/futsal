@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Eye, EyeOff, Store, Lock, Mail } from 'lucide-react';
 import { login, clearError } from '../../store/slices/authSlice';
@@ -90,9 +90,15 @@ export default function OwnerLoginPage() {
             </button>
           </form>
 
-          <p className="text-xs text-gray-400 text-center mt-4">
-            Contact your platform admin if you need access
-          </p>
+          <div className="mt-4 text-center space-y-2">
+            <p className="text-xs text-gray-400">
+              Don't have an account?{' '}
+              <Link to="/owner/register" className="text-emerald-600 font-medium hover:underline">
+                Register your futsal center
+              </Link>
+            </p>
+            <p className="text-xs text-gray-400">Contact your platform admin if you need direct access</p>
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { TrendingUp, CalendarDays, DollarSign, MapPin } from 'lucide-react';
+import { TrendingUp, CalendarDays, DollarSign, MapPin, RefreshCw } from 'lucide-react';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell, Legend,
@@ -76,9 +76,14 @@ export default function OwnerAnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">Analytics</h2>
-        <p className="text-sm text-gray-500">Track revenue and booking performance</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Analytics</h2>
+          <p className="text-sm text-gray-500">Track revenue and booking performance</p>
+        </div>
+        <button onClick={() => load(period, from || undefined, to || undefined, selectedBranch || undefined)} className="btn-ghost p-2" title="Refresh">
+          <RefreshCw className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Filters bar */}

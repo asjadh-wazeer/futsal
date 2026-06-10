@@ -30,7 +30,8 @@ export class OwnerController {
 
   @Get('courts')
   getCourts(@Request() req) {
-    return this.service.getCourts(req.user.businessId);
+    const branchId = req.user.role === 'STAFF' ? req.user.branchId : undefined;
+    return this.service.getCourts(req.user.businessId, branchId);
   }
 
   @Post('courts')
@@ -102,9 +103,25 @@ export class OwnerController {
     });
   }
 
+  @Get('courts/:id/availability')
+  getCourtAvailability(@Request() req, @Param('id') id: string, @Query('date') date: string) {
+    return this.service.getCourtAvailability(id, date, req.user.businessId);
+  }
+
+  @Post('bookings/manual')
+  createManualBooking(@Request() req, @Body() body: any) {
+    return this.service.createManualBooking(
+      { businessId: req.user.businessId, role: req.user.role, branchId: req.user.branchId, name: req.user.name },
+      body,
+    );
+  }
+
   @Patch('bookings/:id/status')
   updateBookingStatus(@Request() req, @Param('id') id: string, @Body() body: { status: string }) {
-    return this.service.updateBookingStatus(id, req.user.businessId, body.status);
+    const cancelledByName = body.status === 'CANCELLED'
+      ? `${req.user.name} (${req.user.role})`
+      : undefined;
+    return this.service.updateBookingStatus(id, req.user.businessId, body.status, cancelledByName);
   }
 
   @Get('branches')

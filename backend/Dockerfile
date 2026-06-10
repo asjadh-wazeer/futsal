@@ -12,4 +12,7 @@ RUN npx prisma generate
 
 EXPOSE 3001
 
-CMD ["npm", "run", "start:dev"]
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+CMD ["/start.sh"]

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { CalendarDays, TrendingUp, Users, Clock } from 'lucide-react';
+import { CalendarDays, TrendingUp, Users, Clock, RefreshCw } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Link } from 'react-router-dom';
 import { ownerApi } from '../../services/api';
@@ -17,7 +17,8 @@ export default function StaffDashboardPage() {
   const currency = admin?.business?.currency || 'LKR';
   const branchId = admin?.branchId ?? undefined;
 
-  useEffect(() => {
+  const load = () => {
+    setLoading(true);
     Promise.all([
       ownerApi.getDashboard(branchId ? { branchId } : {}),
       ownerApi.getAnalytics({ period: 'month', ...(branchId ? { branchId } : {}) }),
@@ -27,7 +28,9 @@ export default function StaffDashboardPage() {
         setRevenueData(analytics.data.revenueChart || []);
       })
       .finally(() => setLoading(false));
-  }, [branchId]);
+  };
+
+  useEffect(() => { load(); }, [branchId]);
 
   if (loading) return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
 
@@ -41,9 +44,14 @@ export default function StaffDashboardPage() {
           <h2 className="text-2xl font-bold text-gray-900">Good {greeting}, {admin?.name?.split(' ')[0]}!</h2>
           <p className="text-gray-500 text-sm mt-0.5">{dayjs().format('dddd, MMMM D, YYYY')}</p>
         </div>
-        <Link to="/staff/bookings" className="hidden sm:flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors">
-          Manage Bookings
-        </Link>
+        <div className="flex items-center gap-2">
+          <button onClick={load} className="btn-ghost p-2" title="Refresh">
+            <RefreshCw className="w-4 h-4" />
+          </button>
+          <Link to="/staff/bookings" className="hidden sm:flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors">
+            Manage Bookings
+          </Link>
+        </div>
       </div>
 
       {/* Stat cards */}

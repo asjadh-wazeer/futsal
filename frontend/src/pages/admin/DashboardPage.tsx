@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { CalendarDays, TrendingUp, Users, Building2, ArrowRight, Clock } from 'lucide-react';
+import { CalendarDays, TrendingUp, Users, Building2, ArrowRight, Clock, RefreshCw } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
@@ -24,7 +24,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const admin = useSelector((s: RootState) => s.auth.admin);
 
-  useEffect(() => {
+  const load = () => {
+    setLoading(true);
     Promise.all([
       adminApi.getDashboard(),
       adminApi.getRevenueChart(period),
@@ -34,7 +35,9 @@ export default function DashboardPage() {
       setRevenueData(rev.data);
       setStatsData(stats.data);
     }).finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { load(); }, []);
 
   useEffect(() => {
     adminApi.getRevenueChart(period).then((res) => setRevenueData(res.data));
@@ -52,9 +55,14 @@ export default function DashboardPage() {
           <h2 className="text-2xl font-bold text-gray-900">Good {dayjs().hour() < 12 ? 'morning' : dayjs().hour() < 17 ? 'afternoon' : 'evening'}, {admin?.name?.split(' ')[0]}!</h2>
           <p className="text-gray-500 text-sm mt-0.5">{dayjs().format('dddd, MMMM D, YYYY')}</p>
         </div>
-        <Link to="/admin/bookings" className="btn-primary text-sm">
-          View All Bookings <ArrowRight className="w-4 h-4" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <button onClick={load} className="btn-ghost p-2" title="Refresh">
+            <RefreshCw className="w-4 h-4" />
+          </button>
+          <Link to="/admin/bookings" className="btn-primary text-sm">
+            View All Bookings <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
 
       {/* Stat Cards */}

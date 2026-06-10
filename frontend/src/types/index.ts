@@ -106,6 +106,10 @@ export interface Booking {
   platformFee: number;
   totalAmount: number;
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
+  source: 'CUSTOMER' | 'MANUAL';
+  createdByName?: string;
+  cancelledByName?: string;
+  cancelledAt?: string;
   notes?: string;
   payment?: Payment;
   createdAt: string;

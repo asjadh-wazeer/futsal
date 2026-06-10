@@ -31,7 +31,7 @@ let AuthService = class AuthService {
         if (!valid) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        const payload = { sub: admin.id, email: admin.email, role: admin.role, businessId: admin.businessId, branchId: admin.branchId ?? null };
+        const payload = { sub: admin.id, name: admin.name, email: admin.email, role: admin.role, businessId: admin.businessId, branchId: admin.branchId ?? null };
         const token = this.jwt.sign(payload);
         return {
             access_token: token,

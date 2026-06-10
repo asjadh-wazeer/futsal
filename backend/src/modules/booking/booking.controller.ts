@@ -57,8 +57,11 @@ export class BookingController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body('status') status: string) {
-    return this.service.updateStatus(id, status);
+  updateStatus(@Request() req, @Param('id') id: string, @Body('status') status: string) {
+    const cancelledByName = status === 'CANCELLED' && req.user?.name
+      ? `${req.user.name} (${req.user.role})`
+      : undefined;
+    return this.service.updateStatus(id, status, cancelledByName);
   }
 
   @UseGuards(JwtAuthGuard)

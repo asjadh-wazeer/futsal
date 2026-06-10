@@ -13,9 +13,11 @@ exports.OwnerService = void 0;
 const common_1 = require("@nestjs/common");
 const bcrypt = require("bcryptjs");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const booking_service_1 = require("../booking/booking.service");
 let OwnerService = class OwnerService {
-    constructor(prisma) {
+    constructor(prisma, bookingService) {
         this.prisma = prisma;
+        this.bookingService = bookingService;
     }
     async getDashboard(businessId, branchId) {
         const today = new Date();
@@ -179,9 +181,9 @@ let OwnerService = class OwnerService {
                 .sort((a, b) => a.hour.localeCompare(b.hour)),
         };
     }
-    async getCourts(businessId) {
+    async getCourts(businessId, branchId) {
         return this.prisma.court.findMany({
-            where: { branch: { businessId } },
+            where: { branch: { businessId }, ...(branchId && { branchId }) },
             include: {
                 sports: true,
                 branch: { select: { id: true, name: true, city: true } },
@@ -350,7 +352,20 @@ let OwnerService = class OwnerService {
         ]);
         return { data: bookings, total, page, limit, pages: Math.ceil(total / limit) };
     }
-    async updateBookingStatus(bookingId, businessId, status) {
+    async createManualBooking(user, dto) {
+        const court = await this.prisma.court.findFirst({
+            where: { id: dto.courtId, branch: { businessId: user.businessId } },
+            include: { branch: true },
+        });
+        if (!court)
+            throw new common_1.NotFoundException('Court not found');
+        if (user.role === 'STAFF' && court.branchId !== user.branchId) {
+            throw new common_1.ForbiddenException('Court does not belong to your branch');
+        }
+        const createdByName = user.name ? `${user.name} (${user.role})` : user.role;
+        return this.bookingService.create({ ...dto, source: 'MANUAL', createdByName });
+    }
+    async updateBookingStatus(bookingId, businessId, status, cancelledByName) {
         const booking = await this.prisma.booking.findFirst({
             where: { id: bookingId, branch: { businessId } },
             include: { payment: true },
@@ -359,7 +374,13 @@ let OwnerService = class OwnerService {
             throw new common_1.NotFoundException('Booking not found');
         const updated = await this.prisma.booking.update({
             where: { id: bookingId },
-            data: { status: status },
+            data: {
+                status: status,
+                ...(status === 'CANCELLED' && {
+                    cancelledByName: cancelledByName ?? null,
+                    cancelledAt: new Date(),
+                }),
+            },
         });
         if (status === 'CONFIRMED' && booking.payment) {
             await this.prisma.payment.update({
@@ -368,6 +389,35 @@ let OwnerService = class OwnerService {
             });
         }
         return updated;
+    }
+    async getCourtAvailability(courtId, date, businessId) {
+        const court = await this.prisma.court.findFirst({
+            where: { id: courtId, branch: { businessId } },
+            include: { branch: { select: { openTime: true, closeTime: true } } },
+        });
+        if (!court)
+            throw new common_1.NotFoundException('Court not found');
+        const branch = court.branch;
+        const openHour = parseInt(branch.openTime.split(':')[0]);
+        const closeHour = parseInt(branch.closeTime.split(':')[0]);
+        const bookings = await this.prisma.booking.findMany({
+            where: { courtId, date: new Date(date), status: { notIn: ['CANCELLED'] } },
+            select: { startTime: true, endTime: true, source: true },
+        });
+        const slots = [];
+        for (let h = openHour; h < closeHour; h++) {
+            const startTime = `${String(h).padStart(2, '0')}:00`;
+            const endTime = `${String(h + 1).padStart(2, '0')}:00`;
+            const slotStart = h * 60;
+            const slotEnd = (h + 1) * 60;
+            const conflict = bookings.find((b) => {
+                const bStart = parseInt(b.startTime.split(':')[0]) * 60 + parseInt(b.startTime.split(':')[1]);
+                const bEnd = parseInt(b.endTime.split(':')[0]) * 60 + parseInt(b.endTime.split(':')[1]);
+                return slotStart < bEnd && slotEnd > bStart;
+            });
+            slots.push({ time: startTime, endTime, available: !conflict, bookingSource: conflict ? conflict.source : null });
+        }
+        return { courtId, date, slots };
     }
     async getBranches(businessId) {
         return this.prisma.branch.findMany({
@@ -551,6 +601,7 @@ let OwnerService = class OwnerService {
 exports.OwnerService = OwnerService;
 exports.OwnerService = OwnerService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        booking_service_1.BookingService])
 ], OwnerService);
 //# sourceMappingURL=owner.service.js.map

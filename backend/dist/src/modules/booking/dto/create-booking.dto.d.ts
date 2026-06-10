@@ -9,4 +9,6 @@ export declare class CreateBookingDto {
     notes?: string;
     paymentMethod?: string;
     sportId?: string;
+    source?: string;
+    createdByName?: string;
 }

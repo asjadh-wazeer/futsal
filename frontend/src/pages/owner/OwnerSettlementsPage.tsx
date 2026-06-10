@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle, Clock, DollarSign, TrendingUp } from 'lucide-react';
+import { CheckCircle, Clock, DollarSign, TrendingUp, RefreshCw } from 'lucide-react';
 import { ownerApi } from '../../services/api';
 import dayjs from 'dayjs';
 
@@ -21,7 +21,8 @@ export default function OwnerSettlementsPage() {
   const [totalPending, setTotalPending] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const load = () => {
+    setLoading(true);
     ownerApi.getSettlements()
       .then((res) => {
         const data = res.data;
@@ -34,7 +35,9 @@ export default function OwnerSettlementsPage() {
         }
       })
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { load(); }, []);
 
   const paid = settlements.filter((s) => s.status === 'PAID');
   const pending = settlements.filter((s) => s.status === 'PENDING');
@@ -42,9 +45,14 @@ export default function OwnerSettlementsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">Settlements</h2>
-        <p className="text-sm text-gray-500">Your monthly revenue payouts</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Settlements</h2>
+          <p className="text-sm text-gray-500">Your monthly revenue payouts</p>
+        </div>
+        <button onClick={load} className="btn-ghost p-2" title="Refresh">
+          <RefreshCw className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Summary */}

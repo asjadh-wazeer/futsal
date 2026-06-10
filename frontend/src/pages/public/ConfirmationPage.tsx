@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { CheckCircle, Calendar, Clock, MapPin, ArrowRight, Download } from 'lucide-react';
+import { CheckCircle, Calendar, Clock, MapPin, ArrowRight, Loader2, RefreshCw, CreditCard, AlertCircle } from 'lucide-react';
 import { resetBooking } from '../../store/slices/bookingSlice';
 import { publicApi } from '../../services/api';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
@@ -15,13 +15,41 @@ export default function ConfirmationPage() {
   const dispatch = useDispatch();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const fetchBooking = useCallback(async (quiet = false) => {
+    if (!ref) return null;
+    if (quiet) setRefreshing(true); else setLoading(true);
+    try {
+      const res = await publicApi.getBookingByRef(ref);
+      setBooking(res.data);
+      return res.data as Booking;
+    } catch {
+      return null;
+    } finally {
+      if (quiet) setRefreshing(false); else { setLoading(false); dispatch(resetBooking()); }
+    }
+  }, [ref, dispatch]);
+
+  useEffect(() => { fetchBooking(); }, [fetchBooking]);
+
+  // Auto-poll every 5s while online payment is pending
   useEffect(() => {
-    if (!ref) return;
-    publicApi.getBookingByRef(ref)
-      .then((res) => setBooking(res.data))
-      .finally(() => { setLoading(false); dispatch(resetBooking()); });
-  }, [ref]);
+    if (!booking) return;
+    const isOnlinePending = booking.payment?.method === 'ONLINE' && booking.payment?.status === 'PENDING';
+    if (!isOnlinePending) return;
+
+    pollRef.current = setInterval(async () => {
+      const updated = await fetchBooking(true);
+      if (updated?.payment?.status !== 'PENDING') {
+        clearInterval(pollRef.current!);
+        pollRef.current = null;
+      }
+    }, 5000);
+
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+  }, [booking?.id, booking?.payment?.status, fetchBooking]);
 
   if (loading) return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
 
@@ -31,22 +59,44 @@ export default function ConfirmationPage() {
     </div>
   );
 
+  const isOnlinePending = booking.payment?.method === 'ONLINE' && booking.payment?.status === 'PENDING';
+  const isOnlinePaid = booking.payment?.method === 'ONLINE' && booking.payment?.status === 'PAID';
+  const isCash = booking.payment?.method !== 'ONLINE';
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
-      {/* Success Header */}
+      {/* Header */}
       <div className="text-center mb-8">
-        <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 animate-bounce">
-          <CheckCircle className="w-10 h-10 text-green-600" />
-        </div>
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Booking Confirmed!</h1>
-        <p className="text-gray-500 text-lg">Your court has been successfully reserved.</p>
+        {isOnlinePending ? (
+          <>
+            <div className="w-20 h-20 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-4">
+              <Loader2 className="w-10 h-10 text-yellow-600 animate-spin" />
+            </div>
+            <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Payment Processing</h1>
+            <p className="text-gray-500 text-lg">Waiting for payment confirmation from PayHere…</p>
+          </>
+        ) : (
+          <>
+            <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 animate-bounce">
+              <CheckCircle className="w-10 h-10 text-green-600" />
+            </div>
+            <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
+              {isOnlinePaid ? 'Payment Successful!' : 'Booking Confirmed!'}
+            </h1>
+            <p className="text-gray-500 text-lg">
+              {isOnlinePaid
+                ? 'Your payment was received and court is reserved.'
+                : 'Your court has been successfully reserved.'}
+            </p>
+          </>
+        )}
       </div>
 
       {/* Booking Ref */}
-      <div className="bg-brand-600 rounded-2xl p-6 text-white text-center mb-6">
-        <p className="text-brand-200 text-sm font-medium mb-1">Booking Reference</p>
+      <div className={`rounded-2xl p-6 text-white text-center mb-6 ${isOnlinePending ? 'bg-yellow-500' : 'bg-brand-600'}`}>
+        <p className={`text-sm font-medium mb-1 ${isOnlinePending ? 'text-yellow-100' : 'text-brand-200'}`}>Booking Reference</p>
         <p className="text-3xl font-black tracking-widest">{booking.bookingRef}</p>
-        <p className="text-brand-200 text-xs mt-2">Save this reference number for your records</p>
+        <p className={`text-xs mt-2 ${isOnlinePending ? 'text-yellow-100' : 'text-brand-200'}`}>Save this reference number for your records</p>
       </div>
 
       {/* Details */}
@@ -111,7 +161,7 @@ export default function ConfirmationPage() {
             <div className="bg-gray-50 rounded-xl p-3 space-y-1.5">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Court fee</span>
-                <span className="text-gray-900">LKR {Number(booking.courtAmount || (Number(booking.totalAmount) - 150)).toLocaleString()}</span>
+                <span className="text-gray-900">LKR {Number(booking.courtAmount || 0).toLocaleString()}</span>
               </div>
               {Number(booking.platformFee) > 0 && (
                 <div className="flex justify-between text-sm">
@@ -128,11 +178,51 @@ export default function ConfirmationPage() {
         </div>
       </div>
 
-      {/* Payment Info */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
-        <p className="text-sm font-semibold text-yellow-800 mb-1">Payment Instructions</p>
-        <p className="text-sm text-yellow-700">Please pay LKR {Number(booking.totalAmount).toLocaleString()} at the venue (cash or card) before your session. Show your booking reference: <strong>{booking.bookingRef}</strong></p>
-      </div>
+      {/* Payment status banner */}
+      {isOnlinePending && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-yellow-800 mb-1">Waiting for Payment Confirmation</p>
+              <p className="text-sm text-yellow-700">
+                Your slot is reserved while we wait for PayHere to confirm your payment. This page checks automatically every 5 seconds. If you completed payment, it should confirm within a minute.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => fetchBooking(true)}
+            disabled={refreshing}
+            className="mt-3 flex items-center gap-2 text-sm font-medium text-yellow-700 hover:text-yellow-900 disabled:opacity-50 transition-colors"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Checking…' : 'Check payment status'}
+          </button>
+        </div>
+      )}
+
+      {isOnlinePaid && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <CreditCard className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-green-800 mb-1">Payment Received</p>
+              <p className="text-sm text-green-700">
+                LKR {Number(booking.totalAmount).toLocaleString()} paid online via PayHere. Show your booking reference <strong>{booking.bookingRef}</strong> at the venue.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isCash && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+          <p className="text-sm font-semibold text-yellow-800 mb-1">Payment Instructions</p>
+          <p className="text-sm text-yellow-700">
+            Please pay LKR {Number(booking.totalAmount).toLocaleString()} at the venue (cash or card) before your session. Show your booking reference: <strong>{booking.bookingRef}</strong>
+          </p>
+        </div>
+      )}
 
       <div className="flex flex-col sm:flex-row gap-3">
         <button onClick={() => navigate('/')} className="btn-secondary flex-1">

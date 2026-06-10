@@ -31,13 +31,19 @@ export class PaymentService {
 
     const hash = crypto.createHash('md5').update(hashStr).digest('hex').toUpperCase();
 
+    const mode = process.env.PAYHERE_MODE || 'sandbox';
+    const checkoutUrl = mode === 'live'
+      ? 'https://www.payhere.lk/pay/checkout'
+      : 'https://sandbox.payhere.lk/pay/checkout';
+
     return {
       merchantId,
       orderId,
       amount,
       currency,
       hash,
-      mode: process.env.PAYHERE_MODE || 'sandbox',
+      checkoutUrl,
+      mode,
       notifyUrl: `${process.env.BACKEND_URL || 'http://localhost:3001'}/api/payment/notify`,
       returnUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/booking/confirm/${booking.bookingRef}`,
       cancelUrl: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/booking`,
