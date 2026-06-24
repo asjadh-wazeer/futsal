@@ -1,0 +1,85 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: futsal_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-futsal_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-futsal_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-futsal_db}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - futsal_net
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-futsal_user} -d ${POSTGRES_DB:-futsal_db}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: futsal_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-futsal_user}:${POSTGRES_PASSWORD:-futsal_pass}@postgres:5432/${POSTGRES_DB:-futsal_db}
+      JWT_SECRET: ${JWT_SECRET:-supersecret_change_in_production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      PORT: 3001
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      BACKEND_URL: ${BACKEND_URL:-http://localhost:3001}
+      # PayHere
+      PAYHERE_MERCHANT_ID: ${PAYHERE_MERCHANT_ID:-}
+      PAYHERE_MERCHANT_SECRET: ${PAYHERE_MERCHANT_SECRET:-}
+      PAYHERE_MODE: ${PAYHERE_MODE:-sandbox}
+      # Platform fee per hour slot (LKR)
+      PLATFORM_FEE_PER_HOUR: ${PLATFORM_FEE_PER_HOUR:-150}
+      # WhatsApp (Meta Cloud API)
+      META_ACCESS_TOKEN: ${META_ACCESS_TOKEN:-}
+      META_PHONE_NUMBER_ID: ${META_PHONE_NUMBER_ID:-}
+      META_WHATSAPP_TEMPLATE: ${META_WHATSAPP_TEMPLATE:-booking_confirmation}
+      # SMS (Notify.lk)
+      NOTIFY_USER_ID: ${NOTIFY_USER_ID:-}
+      NOTIFY_API_KEY: ${NOTIFY_API_KEY:-}
+      NOTIFY_SENDER_ID: ${NOTIFY_SENDER_ID:-FutsalBK}
+    ports:
+      - '3001:3001'
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - futsal_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: futsal_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      BACKEND_URL: http://backend:3001
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - futsal_net
+
+volumes:
+  postgres_data:
+
+networks:
+  futsal_net:
+    driver: bridge
