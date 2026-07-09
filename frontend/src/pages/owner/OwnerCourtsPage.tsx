@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Tag, Calendar, Building2, CheckCircle, XCircle, ChevronDown, RefreshCw } from 'lucide-react';
+import { Plus, Edit2, Trash2, Tag, Calendar, Building2, CheckCircle, XCircle, ChevronDown, RefreshCw, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { ownerApi } from '../../services/api';
 import { Court, PricingRule, CourtSchedule, Sport, Branch } from '../../types';
@@ -232,6 +232,14 @@ export default function OwnerCourtsPage() {
                       {court.sports?.map((s) => s.name).join(', ') || 'No sport assigned'}
                       {court.size ? ` · ${court.size}` : ''}
                     </p>
+                    {(() => {
+                      const branch = court.branch || branches.find((b) => b.id === court.branchId);
+                      return branch ? (
+                        <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+                          <MapPin className="w-3 h-3 shrink-0" />{branch.name}{branch.city ? ` · ${branch.city}` : ''}
+                        </p>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${court.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
@@ -561,18 +569,6 @@ function CourtForm({ form, setForm, sports, branches }: {
         <select value={form.size} onChange={(e) => setForm((f: any) => ({ ...f, size: e.target.value }))} className="input-field">
           <option value="">Select size</option>
           {SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-      </div>
-      <div>
-        <label className="label">Min Duration (min)</label>
-        <select value={form.minDuration} onChange={(e) => setForm((f: any) => ({ ...f, minDuration: parseInt(e.target.value) }))} className="input-field">
-          {[30, 60, 90, 120].map((v) => <option key={v} value={v}>{v} min</option>)}
-        </select>
-      </div>
-      <div>
-        <label className="label">Max Duration (min)</label>
-        <select value={form.maxDuration} onChange={(e) => setForm((f: any) => ({ ...f, maxDuration: parseInt(e.target.value) }))} className="input-field">
-          {[60, 90, 120, 180, 240].map((v) => <option key={v} value={v}>{v} min</option>)}
         </select>
       </div>
       <div className="sm:col-span-2">

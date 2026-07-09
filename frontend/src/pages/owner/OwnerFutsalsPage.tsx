@@ -256,15 +256,6 @@ export default function OwnerFutsalsPage() {
             </select>
           </div>
 
-          <div>
-            <label className="label">Default Slot Duration</label>
-            <select value={form.slotDuration} onChange={f('slotDuration')} className="input-field">
-              {[30, 45, 60, 90, 120].map((v) => (
-                <option key={v} value={v}>{v} minutes</option>
-              ))}
-            </select>
-          </div>
-
           {editing && (
             <div>
               <label className="label">Status</label>

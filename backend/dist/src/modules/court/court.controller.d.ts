@@ -77,8 +77,9 @@ export declare class CourtController {
         date: string;
         slots: {
             time: string;
-            available: boolean;
             endTime: string;
+            available: boolean;
+            price: number;
         }[];
     }>;
     create(body: any): Promise<{

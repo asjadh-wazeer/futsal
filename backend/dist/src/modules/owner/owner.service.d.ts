@@ -25,37 +25,37 @@ export declare class OwnerService {
             court: {
                 sports: {
                     id: string;
-                    createdAt: Date;
-                    updatedAt: Date;
                     name: string;
                     description: string | null;
                     isActive: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
                     icon: string | null;
                     color: string;
                 }[];
             } & {
                 id: string;
+                name: string;
+                description: string | null;
+                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
                 branchId: string;
-                name: string;
-                description: string | null;
                 image: string | null;
                 pricePerHour: import("@prisma/client/runtime/library").Decimal;
                 size: string | null;
                 minDuration: number;
                 maxDuration: number;
-                isActive: boolean;
             };
             customer: {
                 id: string;
+                name: string;
+                phone: string | null;
+                email: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                name: string;
-                email: string | null;
-                phone: string | null;
-                googleId: string | null;
                 password: string | null;
+                googleId: string | null;
                 avatarUrl: string | null;
                 isVerified: boolean;
                 totalSpent: import("@prisma/client/runtime/library").Decimal;
@@ -63,9 +63,9 @@ export declare class OwnerService {
             };
             payment: {
                 id: string;
-                status: import(".prisma/client").$Enums.PaymentStatus;
                 createdAt: Date;
                 updatedAt: Date;
+                status: import(".prisma/client").$Enums.PaymentStatus;
                 amount: import("@prisma/client/runtime/library").Decimal;
                 method: import(".prisma/client").$Enums.PaymentMethod;
                 transactionId: string | null;
@@ -75,7 +75,13 @@ export declare class OwnerService {
             };
         } & {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            branchId: string;
+            sportId: string | null;
             bookingRef: string;
+            courtId: string;
+            customerId: string;
             date: Date;
             startTime: string;
             endTime: string;
@@ -89,21 +95,15 @@ export declare class OwnerService {
             cancelledByName: string | null;
             cancelledAt: Date | null;
             notes: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            branchId: string;
-            courtId: string;
-            customerId: string;
-            sportId: string | null;
         })[];
         courtStats: ({
             sports: {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
                 name: string;
                 description: string | null;
                 isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
                 icon: string | null;
                 color: string;
             }[];
@@ -112,17 +112,17 @@ export declare class OwnerService {
             };
         } & {
             id: string;
+            name: string;
+            description: string | null;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
             branchId: string;
-            name: string;
-            description: string | null;
             image: string | null;
             pricePerHour: import("@prisma/client/runtime/library").Decimal;
             size: string | null;
             minDuration: number;
             maxDuration: number;
-            isActive: boolean;
         })[];
         todaySchedule: ({
             branch: {
@@ -131,37 +131,37 @@ export declare class OwnerService {
             court: {
                 sports: {
                     id: string;
-                    createdAt: Date;
-                    updatedAt: Date;
                     name: string;
                     description: string | null;
                     isActive: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
                     icon: string | null;
                     color: string;
                 }[];
             } & {
                 id: string;
+                name: string;
+                description: string | null;
+                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
                 branchId: string;
-                name: string;
-                description: string | null;
                 image: string | null;
                 pricePerHour: import("@prisma/client/runtime/library").Decimal;
                 size: string | null;
                 minDuration: number;
                 maxDuration: number;
-                isActive: boolean;
             };
             customer: {
                 id: string;
+                name: string;
+                phone: string | null;
+                email: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                name: string;
-                email: string | null;
-                phone: string | null;
-                googleId: string | null;
                 password: string | null;
+                googleId: string | null;
                 avatarUrl: string | null;
                 isVerified: boolean;
                 totalSpent: import("@prisma/client/runtime/library").Decimal;
@@ -169,7 +169,13 @@ export declare class OwnerService {
             };
         } & {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            branchId: string;
+            sportId: string | null;
             bookingRef: string;
+            courtId: string;
+            customerId: string;
             date: Date;
             startTime: string;
             endTime: string;
@@ -183,18 +189,12 @@ export declare class OwnerService {
             cancelledByName: string | null;
             cancelledAt: Date | null;
             notes: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            branchId: string;
-            courtId: string;
-            customerId: string;
-            sportId: string | null;
         })[];
         branches: {
             id: string;
             name: string;
-            isActive: boolean;
             city: string;
+            isActive: boolean;
         }[];
     }>;
     getAnalytics(businessId: string, params: {
@@ -244,32 +244,32 @@ export declare class OwnerService {
         };
         sports: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             name: string;
             description: string | null;
             isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
             icon: string | null;
             color: string;
         }[];
         pricingRules: {
             id: string;
+            name: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            courtId: string;
-            name: string;
             pricePerHour: import("@prisma/client/runtime/library").Decimal;
-            isActive: boolean;
-            priority: number;
+            courtId: string;
             dayType: import(".prisma/client").$Enums.DayType;
             startHour: number;
             endHour: number;
+            priority: number;
         }[];
         schedules: {
             id: string;
-            courtId: string;
             openTime: string;
             closeTime: string;
+            courtId: string;
             dayOfWeek: number;
             isOpen: boolean;
         }[];
@@ -278,30 +278,30 @@ export declare class OwnerService {
         };
     } & {
         id: string;
+        name: string;
+        description: string | null;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
         branchId: string;
-        name: string;
-        description: string | null;
         image: string | null;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
         size: string | null;
         minDuration: number;
         maxDuration: number;
-        isActive: boolean;
     })[]>;
     getCourt(id: string, businessId: string): Promise<{
         branch: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             name: string;
-            isActive: boolean;
-            email: string | null;
             phone: string | null;
-            businessId: string;
+            email: string | null;
             address: string;
             city: string;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            businessId: string;
             mapUrl: string | null;
             openTime: string;
             closeTime: string;
@@ -309,48 +309,48 @@ export declare class OwnerService {
         };
         sports: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             name: string;
             description: string | null;
             isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
             icon: string | null;
             color: string;
         }[];
         pricingRules: {
             id: string;
+            name: string;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            courtId: string;
-            name: string;
             pricePerHour: import("@prisma/client/runtime/library").Decimal;
-            isActive: boolean;
-            priority: number;
+            courtId: string;
             dayType: import(".prisma/client").$Enums.DayType;
             startHour: number;
             endHour: number;
+            priority: number;
         }[];
         schedules: {
             id: string;
-            courtId: string;
             openTime: string;
             closeTime: string;
+            courtId: string;
             dayOfWeek: number;
             isOpen: boolean;
         }[];
     } & {
         id: string;
+        name: string;
+        description: string | null;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
         branchId: string;
-        name: string;
-        description: string | null;
         image: string | null;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
         size: string | null;
         minDuration: number;
         maxDuration: number;
-        isActive: boolean;
     }>;
     createCourt(businessId: string, data: any): Promise<{
         branch: {
@@ -359,118 +359,118 @@ export declare class OwnerService {
         };
         sports: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             name: string;
             description: string | null;
             isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
             icon: string | null;
             color: string;
         }[];
     } & {
         id: string;
+        name: string;
+        description: string | null;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
         branchId: string;
-        name: string;
-        description: string | null;
         image: string | null;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
         size: string | null;
         minDuration: number;
         maxDuration: number;
-        isActive: boolean;
     }>;
     updateCourt(id: string, businessId: string, data: any): Promise<{
         sports: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             name: string;
             description: string | null;
             isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
             icon: string | null;
             color: string;
         }[];
     } & {
         id: string;
+        name: string;
+        description: string | null;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
         branchId: string;
-        name: string;
-        description: string | null;
         image: string | null;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
         size: string | null;
         minDuration: number;
         maxDuration: number;
-        isActive: boolean;
     }>;
     getPricingRules(courtId: string, businessId: string): Promise<{
         id: string;
+        name: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        courtId: string;
-        name: string;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
-        isActive: boolean;
-        priority: number;
+        courtId: string;
         dayType: import(".prisma/client").$Enums.DayType;
         startHour: number;
         endHour: number;
+        priority: number;
     }[]>;
     createPricingRule(courtId: string, businessId: string, data: any): Promise<{
         id: string;
+        name: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        courtId: string;
-        name: string;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
-        isActive: boolean;
-        priority: number;
+        courtId: string;
         dayType: import(".prisma/client").$Enums.DayType;
         startHour: number;
         endHour: number;
+        priority: number;
     }>;
     updatePricingRule(ruleId: string, businessId: string, data: any): Promise<{
         id: string;
+        name: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        courtId: string;
-        name: string;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
-        isActive: boolean;
-        priority: number;
+        courtId: string;
         dayType: import(".prisma/client").$Enums.DayType;
         startHour: number;
         endHour: number;
+        priority: number;
     }>;
     deletePricingRule(ruleId: string, businessId: string): Promise<{
         id: string;
+        name: string;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
-        courtId: string;
-        name: string;
         pricePerHour: import("@prisma/client/runtime/library").Decimal;
-        isActive: boolean;
-        priority: number;
+        courtId: string;
         dayType: import(".prisma/client").$Enums.DayType;
         startHour: number;
         endHour: number;
+        priority: number;
     }>;
     getSchedule(courtId: string, businessId: string): Promise<{
         id: string;
-        courtId: string;
         openTime: string;
         closeTime: string;
+        courtId: string;
         dayOfWeek: number;
         isOpen: boolean;
     }[]>;
     upsertSchedule(courtId: string, businessId: string, schedules: any[]): Promise<{
         id: string;
-        courtId: string;
         openTime: string;
         closeTime: string;
+        courtId: string;
         dayOfWeek: number;
         isOpen: boolean;
     }[]>;
@@ -491,37 +491,37 @@ export declare class OwnerService {
             court: {
                 sports: {
                     id: string;
-                    createdAt: Date;
-                    updatedAt: Date;
                     name: string;
                     description: string | null;
                     isActive: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
                     icon: string | null;
                     color: string;
                 }[];
             } & {
                 id: string;
+                name: string;
+                description: string | null;
+                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
                 branchId: string;
-                name: string;
-                description: string | null;
                 image: string | null;
                 pricePerHour: import("@prisma/client/runtime/library").Decimal;
                 size: string | null;
                 minDuration: number;
                 maxDuration: number;
-                isActive: boolean;
             };
             customer: {
                 id: string;
+                name: string;
+                phone: string | null;
+                email: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                name: string;
-                email: string | null;
-                phone: string | null;
-                googleId: string | null;
                 password: string | null;
+                googleId: string | null;
                 avatarUrl: string | null;
                 isVerified: boolean;
                 totalSpent: import("@prisma/client/runtime/library").Decimal;
@@ -529,9 +529,9 @@ export declare class OwnerService {
             };
             payment: {
                 id: string;
-                status: import(".prisma/client").$Enums.PaymentStatus;
                 createdAt: Date;
                 updatedAt: Date;
+                status: import(".prisma/client").$Enums.PaymentStatus;
                 amount: import("@prisma/client/runtime/library").Decimal;
                 method: import(".prisma/client").$Enums.PaymentMethod;
                 transactionId: string | null;
@@ -541,7 +541,13 @@ export declare class OwnerService {
             };
         } & {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            branchId: string;
+            sportId: string | null;
             bookingRef: string;
+            courtId: string;
+            customerId: string;
             date: Date;
             startTime: string;
             endTime: string;
@@ -555,12 +561,6 @@ export declare class OwnerService {
             cancelledByName: string | null;
             cancelledAt: Date | null;
             notes: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            branchId: string;
-            courtId: string;
-            customerId: string;
-            sportId: string | null;
         })[];
         total: number;
         page: number;
@@ -575,15 +575,15 @@ export declare class OwnerService {
     }, dto: any): Promise<{
         branch: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             name: string;
-            isActive: boolean;
-            email: string | null;
             phone: string | null;
-            businessId: string;
+            email: string | null;
             address: string;
             city: string;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            businessId: string;
             mapUrl: string | null;
             openTime: string;
             closeTime: string;
@@ -592,37 +592,37 @@ export declare class OwnerService {
         court: {
             sports: {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
                 name: string;
                 description: string | null;
                 isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
                 icon: string | null;
                 color: string;
             }[];
         } & {
             id: string;
+            name: string;
+            description: string | null;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
             branchId: string;
-            name: string;
-            description: string | null;
             image: string | null;
             pricePerHour: import("@prisma/client/runtime/library").Decimal;
             size: string | null;
             minDuration: number;
             maxDuration: number;
-            isActive: boolean;
         };
         customer: {
             id: string;
+            name: string;
+            phone: string | null;
+            email: string | null;
             createdAt: Date;
             updatedAt: Date;
-            name: string;
-            email: string | null;
-            phone: string | null;
-            googleId: string | null;
             password: string | null;
+            googleId: string | null;
             avatarUrl: string | null;
             isVerified: boolean;
             totalSpent: import("@prisma/client/runtime/library").Decimal;
@@ -630,9 +630,9 @@ export declare class OwnerService {
         };
         payment: {
             id: string;
-            status: import(".prisma/client").$Enums.PaymentStatus;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.PaymentStatus;
             amount: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             transactionId: string | null;
@@ -642,7 +642,13 @@ export declare class OwnerService {
         };
     } & {
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        branchId: string;
+        sportId: string | null;
         bookingRef: string;
+        courtId: string;
+        customerId: string;
         date: Date;
         startTime: string;
         endTime: string;
@@ -656,16 +662,16 @@ export declare class OwnerService {
         cancelledByName: string | null;
         cancelledAt: Date | null;
         notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        branchId: string;
-        courtId: string;
-        customerId: string;
-        sportId: string | null;
     }>;
     updateBookingStatus(bookingId: string, businessId: string, status: string, cancelledByName?: string): Promise<{
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        branchId: string;
+        sportId: string | null;
         bookingRef: string;
+        courtId: string;
+        customerId: string;
         date: Date;
         startTime: string;
         endTime: string;
@@ -679,12 +685,6 @@ export declare class OwnerService {
         cancelledByName: string | null;
         cancelledAt: Date | null;
         notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        branchId: string;
-        courtId: string;
-        customerId: string;
-        sportId: string | null;
     }>;
     getCourtAvailability(courtId: string, date: string, businessId: string): Promise<{
         courtId: string;
@@ -698,21 +698,21 @@ export declare class OwnerService {
     }>;
     getBranches(businessId: string): Promise<({
         _count: {
-            bookings: number;
             courts: number;
+            bookings: number;
             staff: number;
         };
     } & {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         name: string;
-        isActive: boolean;
-        email: string | null;
         phone: string | null;
-        businessId: string;
+        email: string | null;
         address: string;
         city: string;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
         mapUrl: string | null;
         openTime: string;
         closeTime: string;
@@ -720,21 +720,21 @@ export declare class OwnerService {
     })[]>;
     createBranch(businessId: string, data: any): Promise<{
         _count: {
-            bookings: number;
             courts: number;
+            bookings: number;
             staff: number;
         };
     } & {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         name: string;
-        isActive: boolean;
-        email: string | null;
         phone: string | null;
-        businessId: string;
+        email: string | null;
         address: string;
         city: string;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
         mapUrl: string | null;
         openTime: string;
         closeTime: string;
@@ -742,21 +742,21 @@ export declare class OwnerService {
     }>;
     updateBranch(id: string, businessId: string, data: any): Promise<{
         _count: {
-            bookings: number;
             courts: number;
+            bookings: number;
             staff: number;
         };
     } & {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         name: string;
-        isActive: boolean;
-        email: string | null;
         phone: string | null;
-        businessId: string;
+        email: string | null;
         address: string;
         city: string;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
         mapUrl: string | null;
         openTime: string;
         closeTime: string;
@@ -764,16 +764,19 @@ export declare class OwnerService {
     }>;
     getSports(): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         name: string;
         description: string | null;
         isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
         icon: string | null;
         color: string;
     }[]>;
     getStaff(businessId: string, branchId?: string): Promise<{
         id: string;
+        name: string;
+        email: string;
+        isActive: boolean;
         createdAt: Date;
         branch: {
             id: string;
@@ -781,9 +784,6 @@ export declare class OwnerService {
             city: string;
         };
         branchId: string;
-        name: string;
-        isActive: boolean;
-        email: string;
         role: import(".prisma/client").$Enums.AdminRole;
     }[]>;
     createStaff(businessId: string, data: {
@@ -793,6 +793,9 @@ export declare class OwnerService {
         branchId: string;
     }): Promise<{
         id: string;
+        name: string;
+        email: string;
+        isActive: boolean;
         createdAt: Date;
         branch: {
             id: string;
@@ -800,9 +803,6 @@ export declare class OwnerService {
             city: string;
         };
         branchId: string;
-        name: string;
-        isActive: boolean;
-        email: string;
         role: import(".prisma/client").$Enums.AdminRole;
     }>;
     updateStaff(staffId: string, businessId: string, data: {
@@ -811,6 +811,9 @@ export declare class OwnerService {
         isActive?: boolean;
     }): Promise<{
         id: string;
+        name: string;
+        email: string;
+        isActive: boolean;
         createdAt: Date;
         branch: {
             id: string;
@@ -818,9 +821,6 @@ export declare class OwnerService {
             city: string;
         };
         branchId: string;
-        name: string;
-        isActive: boolean;
-        email: string;
         role: import(".prisma/client").$Enums.AdminRole;
     }>;
     resetStaffPassword(staffId: string, businessId: string, newPassword: string): Promise<{
@@ -833,10 +833,10 @@ export declare class OwnerService {
         businessId: string;
     }): Promise<{
         id: string;
-        createdAt: Date;
         name: string;
-        isActive: boolean;
         email: string;
+        isActive: boolean;
+        createdAt: Date;
         business: {
             id: string;
             name: string;
@@ -845,10 +845,10 @@ export declare class OwnerService {
     }>;
     getOwners(): Promise<{
         id: string;
-        createdAt: Date;
         name: string;
-        isActive: boolean;
         email: string;
+        isActive: boolean;
+        createdAt: Date;
         business: {
             id: string;
             name: string;
@@ -858,8 +858,8 @@ export declare class OwnerService {
     toggleOwnerStatus(ownerId: string): Promise<{
         id: string;
         name: string;
-        isActive: boolean;
         email: string;
+        isActive: boolean;
     }>;
     getBusinesses(): Promise<{
         id: string;

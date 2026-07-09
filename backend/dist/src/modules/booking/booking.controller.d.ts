@@ -6,15 +6,15 @@ export declare class BookingController {
     create(dto: CreateBookingDto): Promise<{
         branch: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             name: string;
-            isActive: boolean;
-            email: string | null;
             phone: string | null;
-            businessId: string;
+            email: string | null;
             address: string;
             city: string;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            businessId: string;
             mapUrl: string | null;
             openTime: string;
             closeTime: string;
@@ -23,37 +23,37 @@ export declare class BookingController {
         court: {
             sports: {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
                 name: string;
                 description: string | null;
                 isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
                 icon: string | null;
                 color: string;
             }[];
         } & {
             id: string;
+            name: string;
+            description: string | null;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
             branchId: string;
-            name: string;
-            description: string | null;
             image: string | null;
             pricePerHour: import("@prisma/client/runtime/library").Decimal;
             size: string | null;
             minDuration: number;
             maxDuration: number;
-            isActive: boolean;
         };
         customer: {
             id: string;
+            name: string;
+            phone: string | null;
+            email: string | null;
             createdAt: Date;
             updatedAt: Date;
-            name: string;
-            email: string | null;
-            phone: string | null;
-            googleId: string | null;
             password: string | null;
+            googleId: string | null;
             avatarUrl: string | null;
             isVerified: boolean;
             totalSpent: import("@prisma/client/runtime/library").Decimal;
@@ -61,9 +61,9 @@ export declare class BookingController {
         };
         payment: {
             id: string;
-            status: import(".prisma/client").$Enums.PaymentStatus;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.PaymentStatus;
             amount: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             transactionId: string | null;
@@ -73,7 +73,13 @@ export declare class BookingController {
         };
     } & {
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        branchId: string;
+        sportId: string | null;
         bookingRef: string;
+        courtId: string;
+        customerId: string;
         date: Date;
         startTime: string;
         endTime: string;
@@ -87,25 +93,19 @@ export declare class BookingController {
         cancelledByName: string | null;
         cancelledAt: Date | null;
         notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        branchId: string;
-        courtId: string;
-        customerId: string;
-        sportId: string | null;
     }>;
     findByRef(ref: string): Promise<{
         branch: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             name: string;
-            isActive: boolean;
-            email: string | null;
             phone: string | null;
-            businessId: string;
+            email: string | null;
             address: string;
             city: string;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            businessId: string;
             mapUrl: string | null;
             openTime: string;
             closeTime: string;
@@ -114,37 +114,37 @@ export declare class BookingController {
         court: {
             sports: {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
                 name: string;
                 description: string | null;
                 isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
                 icon: string | null;
                 color: string;
             }[];
         } & {
             id: string;
+            name: string;
+            description: string | null;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
             branchId: string;
-            name: string;
-            description: string | null;
             image: string | null;
             pricePerHour: import("@prisma/client/runtime/library").Decimal;
             size: string | null;
             minDuration: number;
             maxDuration: number;
-            isActive: boolean;
         };
         customer: {
             id: string;
+            name: string;
+            phone: string | null;
+            email: string | null;
             createdAt: Date;
             updatedAt: Date;
-            name: string;
-            email: string | null;
-            phone: string | null;
-            googleId: string | null;
             password: string | null;
+            googleId: string | null;
             avatarUrl: string | null;
             isVerified: boolean;
             totalSpent: import("@prisma/client/runtime/library").Decimal;
@@ -152,9 +152,9 @@ export declare class BookingController {
         };
         payment: {
             id: string;
-            status: import(".prisma/client").$Enums.PaymentStatus;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.PaymentStatus;
             amount: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             transactionId: string | null;
@@ -164,7 +164,13 @@ export declare class BookingController {
         };
     } & {
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        branchId: string;
+        sportId: string | null;
         bookingRef: string;
+        courtId: string;
+        customerId: string;
         date: Date;
         startTime: string;
         endTime: string;
@@ -178,12 +184,6 @@ export declare class BookingController {
         cancelledByName: string | null;
         cancelledAt: Date | null;
         notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        branchId: string;
-        courtId: string;
-        customerId: string;
-        sportId: string | null;
     }>;
     findAll(branchId?: string, status?: string, date?: string, search?: string, page?: string, limit?: string): Promise<{
         data: ({
@@ -194,37 +194,37 @@ export declare class BookingController {
             court: {
                 sports: {
                     id: string;
-                    createdAt: Date;
-                    updatedAt: Date;
                     name: string;
                     description: string | null;
                     isActive: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
                     icon: string | null;
                     color: string;
                 }[];
             } & {
                 id: string;
+                name: string;
+                description: string | null;
+                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
                 branchId: string;
-                name: string;
-                description: string | null;
                 image: string | null;
                 pricePerHour: import("@prisma/client/runtime/library").Decimal;
                 size: string | null;
                 minDuration: number;
                 maxDuration: number;
-                isActive: boolean;
             };
             customer: {
                 id: string;
+                name: string;
+                phone: string | null;
+                email: string | null;
                 createdAt: Date;
                 updatedAt: Date;
-                name: string;
-                email: string | null;
-                phone: string | null;
-                googleId: string | null;
                 password: string | null;
+                googleId: string | null;
                 avatarUrl: string | null;
                 isVerified: boolean;
                 totalSpent: import("@prisma/client/runtime/library").Decimal;
@@ -232,9 +232,9 @@ export declare class BookingController {
             };
             payment: {
                 id: string;
-                status: import(".prisma/client").$Enums.PaymentStatus;
                 createdAt: Date;
                 updatedAt: Date;
+                status: import(".prisma/client").$Enums.PaymentStatus;
                 amount: import("@prisma/client/runtime/library").Decimal;
                 method: import(".prisma/client").$Enums.PaymentMethod;
                 transactionId: string | null;
@@ -244,7 +244,13 @@ export declare class BookingController {
             };
         } & {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            branchId: string;
+            sportId: string | null;
             bookingRef: string;
+            courtId: string;
+            customerId: string;
             date: Date;
             startTime: string;
             endTime: string;
@@ -258,12 +264,6 @@ export declare class BookingController {
             cancelledByName: string | null;
             cancelledAt: Date | null;
             notes: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            branchId: string;
-            courtId: string;
-            customerId: string;
-            sportId: string | null;
         })[];
         total: number;
         page: number;
@@ -274,37 +274,37 @@ export declare class BookingController {
         court: {
             sports: {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
                 name: string;
                 description: string | null;
                 isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
                 icon: string | null;
                 color: string;
             }[];
         } & {
             id: string;
+            name: string;
+            description: string | null;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
             branchId: string;
-            name: string;
-            description: string | null;
             image: string | null;
             pricePerHour: import("@prisma/client/runtime/library").Decimal;
             size: string | null;
             minDuration: number;
             maxDuration: number;
-            isActive: boolean;
         };
         customer: {
             id: string;
+            name: string;
+            phone: string | null;
+            email: string | null;
             createdAt: Date;
             updatedAt: Date;
-            name: string;
-            email: string | null;
-            phone: string | null;
-            googleId: string | null;
             password: string | null;
+            googleId: string | null;
             avatarUrl: string | null;
             isVerified: boolean;
             totalSpent: import("@prisma/client/runtime/library").Decimal;
@@ -312,9 +312,9 @@ export declare class BookingController {
         };
         payment: {
             id: string;
-            status: import(".prisma/client").$Enums.PaymentStatus;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.PaymentStatus;
             amount: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             transactionId: string | null;
@@ -324,7 +324,13 @@ export declare class BookingController {
         };
     } & {
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        branchId: string;
+        sportId: string | null;
         bookingRef: string;
+        courtId: string;
+        customerId: string;
         date: Date;
         startTime: string;
         endTime: string;
@@ -338,25 +344,19 @@ export declare class BookingController {
         cancelledByName: string | null;
         cancelledAt: Date | null;
         notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        branchId: string;
-        courtId: string;
-        customerId: string;
-        sportId: string | null;
     })[]>;
     findOne(id: string): Promise<{
         branch: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             name: string;
-            isActive: boolean;
-            email: string | null;
             phone: string | null;
-            businessId: string;
+            email: string | null;
             address: string;
             city: string;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            businessId: string;
             mapUrl: string | null;
             openTime: string;
             closeTime: string;
@@ -365,37 +365,37 @@ export declare class BookingController {
         court: {
             sports: {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
                 name: string;
                 description: string | null;
                 isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
                 icon: string | null;
                 color: string;
             }[];
         } & {
             id: string;
+            name: string;
+            description: string | null;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
             branchId: string;
-            name: string;
-            description: string | null;
             image: string | null;
             pricePerHour: import("@prisma/client/runtime/library").Decimal;
             size: string | null;
             minDuration: number;
             maxDuration: number;
-            isActive: boolean;
         };
         customer: {
             id: string;
+            name: string;
+            phone: string | null;
+            email: string | null;
             createdAt: Date;
             updatedAt: Date;
-            name: string;
-            email: string | null;
-            phone: string | null;
-            googleId: string | null;
             password: string | null;
+            googleId: string | null;
             avatarUrl: string | null;
             isVerified: boolean;
             totalSpent: import("@prisma/client/runtime/library").Decimal;
@@ -403,9 +403,9 @@ export declare class BookingController {
         };
         payment: {
             id: string;
-            status: import(".prisma/client").$Enums.PaymentStatus;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.PaymentStatus;
             amount: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             transactionId: string | null;
@@ -415,7 +415,13 @@ export declare class BookingController {
         };
     } & {
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        branchId: string;
+        sportId: string | null;
         bookingRef: string;
+        courtId: string;
+        customerId: string;
         date: Date;
         startTime: string;
         endTime: string;
@@ -429,48 +435,42 @@ export declare class BookingController {
         cancelledByName: string | null;
         cancelledAt: Date | null;
         notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        branchId: string;
-        courtId: string;
-        customerId: string;
-        sportId: string | null;
     }>;
     updateStatus(req: any, id: string, status: string): Promise<{
         court: {
             sports: {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
                 name: string;
                 description: string | null;
                 isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
                 icon: string | null;
                 color: string;
             }[];
         } & {
             id: string;
+            name: string;
+            description: string | null;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
             branchId: string;
-            name: string;
-            description: string | null;
             image: string | null;
             pricePerHour: import("@prisma/client/runtime/library").Decimal;
             size: string | null;
             minDuration: number;
             maxDuration: number;
-            isActive: boolean;
         };
         customer: {
             id: string;
+            name: string;
+            phone: string | null;
+            email: string | null;
             createdAt: Date;
             updatedAt: Date;
-            name: string;
-            email: string | null;
-            phone: string | null;
-            googleId: string | null;
             password: string | null;
+            googleId: string | null;
             avatarUrl: string | null;
             isVerified: boolean;
             totalSpent: import("@prisma/client/runtime/library").Decimal;
@@ -478,9 +478,9 @@ export declare class BookingController {
         };
         payment: {
             id: string;
-            status: import(".prisma/client").$Enums.PaymentStatus;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.PaymentStatus;
             amount: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             transactionId: string | null;
@@ -490,7 +490,13 @@ export declare class BookingController {
         };
     } & {
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        branchId: string;
+        sportId: string | null;
         bookingRef: string;
+        courtId: string;
+        customerId: string;
         date: Date;
         startTime: string;
         endTime: string;
@@ -504,25 +510,19 @@ export declare class BookingController {
         cancelledByName: string | null;
         cancelledAt: Date | null;
         notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        branchId: string;
-        courtId: string;
-        customerId: string;
-        sportId: string | null;
     }>;
     createManual(req: any, dto: any): Promise<{
         branch: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             name: string;
-            isActive: boolean;
-            email: string | null;
             phone: string | null;
-            businessId: string;
+            email: string | null;
             address: string;
             city: string;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            businessId: string;
             mapUrl: string | null;
             openTime: string;
             closeTime: string;
@@ -531,37 +531,37 @@ export declare class BookingController {
         court: {
             sports: {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
                 name: string;
                 description: string | null;
                 isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
                 icon: string | null;
                 color: string;
             }[];
         } & {
             id: string;
+            name: string;
+            description: string | null;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
             branchId: string;
-            name: string;
-            description: string | null;
             image: string | null;
             pricePerHour: import("@prisma/client/runtime/library").Decimal;
             size: string | null;
             minDuration: number;
             maxDuration: number;
-            isActive: boolean;
         };
         customer: {
             id: string;
+            name: string;
+            phone: string | null;
+            email: string | null;
             createdAt: Date;
             updatedAt: Date;
-            name: string;
-            email: string | null;
-            phone: string | null;
-            googleId: string | null;
             password: string | null;
+            googleId: string | null;
             avatarUrl: string | null;
             isVerified: boolean;
             totalSpent: import("@prisma/client/runtime/library").Decimal;
@@ -569,9 +569,9 @@ export declare class BookingController {
         };
         payment: {
             id: string;
-            status: import(".prisma/client").$Enums.PaymentStatus;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.PaymentStatus;
             amount: import("@prisma/client/runtime/library").Decimal;
             method: import(".prisma/client").$Enums.PaymentMethod;
             transactionId: string | null;
@@ -581,7 +581,13 @@ export declare class BookingController {
         };
     } & {
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        branchId: string;
+        sportId: string | null;
         bookingRef: string;
+        courtId: string;
+        customerId: string;
         date: Date;
         startTime: string;
         endTime: string;
@@ -595,11 +601,5 @@ export declare class BookingController {
         cancelledByName: string | null;
         cancelledAt: Date | null;
         notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        branchId: string;
-        courtId: string;
-        customerId: string;
-        sportId: string | null;
     }>;
 }

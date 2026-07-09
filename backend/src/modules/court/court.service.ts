@@ -33,17 +33,23 @@ export class CourtService {
     const openHour = parseInt(branch.openTime.split(':')[0]);
     const closeHour = parseInt(branch.closeTime.split(':')[0]);
 
-    const bookings = await this.prisma.booking.findMany({
-      where: {
-        courtId,
-        date: new Date(date),
-        status: { notIn: ['CANCELLED'] },
-      },
-      select: { startTime: true, endTime: true },
-    });
+    const [bookings, rules] = await Promise.all([
+      this.prisma.booking.findMany({
+        where: { courtId, date: new Date(date), status: { notIn: ['CANCELLED'] } },
+        select: { startTime: true, endTime: true },
+      }),
+      this.prisma.pricingRule.findMany({
+        where: { courtId, isActive: true },
+        orderBy: { priority: 'desc' },
+      }),
+    ]);
+
+    const d = new Date(date);
+    const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+    const basePrice = Number(court.pricePerHour);
 
     const bookedRanges = bookings.map((b) => ({ start: b.startTime, end: b.endTime }));
-    const slots: { time: string; available: boolean; endTime: string }[] = [];
+    const slots: { time: string; endTime: string; available: boolean; price: number }[] = [];
 
     for (let h = openHour; h < closeHour; h++) {
       const startTime = `${String(h).padStart(2, '0')}:00`;
@@ -57,7 +63,13 @@ export class CourtService {
         return slotStart < bookEnd && slotEnd > bookStart;
       });
 
-      slots.push({ time: startTime, endTime, available: !isBooked });
+      const match = rules.find((r) => {
+        const dayOk = r.dayType === 'ALL' || (r.dayType === 'WEEKDAY' && !isWeekend) || (r.dayType === 'WEEKEND' && isWeekend);
+        return dayOk && h >= r.startHour && h < r.endHour;
+      });
+      const price = match ? Number(match.pricePerHour) : basePrice;
+
+      slots.push({ time: startTime, endTime, available: !isBooked, price });
     }
 
     return { courtId, date, slots };

@@ -129,6 +129,7 @@ export interface TimeSlot {
   time: string;
   endTime: string;
   available: boolean;
+  price?: number;
 }
 
 export interface Admin {

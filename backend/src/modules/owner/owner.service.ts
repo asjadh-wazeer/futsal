@@ -487,7 +487,7 @@ export class OwnerService {
         mapUrl: data.mapUrl,
         openTime: data.openTime || '06:00',
         closeTime: data.closeTime || '22:00',
-        slotDuration: data.slotDuration || 60,
+        slotDuration: parseInt(data.slotDuration) || 60,
       },
       include: { _count: { select: { courts: true, bookings: true, staff: true } } },
     });

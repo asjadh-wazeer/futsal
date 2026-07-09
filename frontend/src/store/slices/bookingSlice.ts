@@ -5,7 +5,7 @@ interface BookingState {
   selectedSport: any | null;
   selectedCourt: any | null;
   selectedDate: string;
-  selectedSlot: { time: string; endTime: string } | null;
+  selectedSlot: { time: string; endTime: string; price?: number } | null;
   customerDetails: {
     name: string;
     phone: string;
@@ -48,7 +48,7 @@ const bookingSlice = createSlice({
       state.selectedDate = action.payload;
       state.selectedSlot = null;
     },
-    setSlot: (state, action: PayloadAction<{ time: string; endTime: string }>) => {
+    setSlot: (state, action: PayloadAction<{ time: string; endTime: string; price?: number }>) => {
       state.selectedSlot = action.payload;
     },
     setCustomerDetails: (state, action: PayloadAction<Partial<BookingState['customerDetails']>>) => {
