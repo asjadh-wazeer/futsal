@@ -140,6 +140,7 @@ export const ownerApi = {
   getBranches: () => api.get('/owner/branches'),
   createBranch: (data: any) => api.post('/owner/branches', data),
   updateBranch: (id: string, data: any) => api.patch(`/owner/branches/${id}`, data),
+  deleteBranch: (id: string) => api.delete(`/owner/branches/${id}`),
   getSports: () => api.get('/owner/sports'),
 
   getStaff: (params?: { branchId?: string }) => api.get('/owner/staff', { params }),
@@ -151,6 +152,8 @@ export const ownerApi = {
   createOwner: (data: any) => api.post('/owner/manage/owners', data),
   getOwners: () => api.get('/owner/manage/owners'),
   toggleOwnerStatus: (id: string) => api.patch(`/owner/manage/owners/${id}/toggle`),
+  updateOwner: (id: string, data: any) => api.patch(`/owner/manage/owners/${id}`, data),
+  deleteOwner: (id: string) => api.delete(`/owner/manage/owners/${id}`),
   getBusinesses: () => api.get('/owner/manage/businesses'),
 
   getSettlements: (params?: { status?: string; month?: string }) => api.get('/settlement', { params }),

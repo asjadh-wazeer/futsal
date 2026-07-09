@@ -476,6 +476,9 @@ export class OwnerService {
   }
 
   async createBranch(businessId: string, data: any) {
+    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      throw new BadRequestException('Invalid email address');
+    }
     return this.prisma.branch.create({
       data: {
         businessId,
@@ -487,7 +490,7 @@ export class OwnerService {
         mapUrl: data.mapUrl,
         openTime: data.openTime || '06:00',
         closeTime: data.closeTime || '22:00',
-        slotDuration: parseInt(data.slotDuration) || 60,
+        slotDuration: data.slotDuration || 60,
       },
       include: { _count: { select: { courts: true, bookings: true, staff: true } } },
     });
@@ -496,6 +499,9 @@ export class OwnerService {
   async updateBranch(id: string, businessId: string, data: any) {
     const branch = await this.prisma.branch.findFirst({ where: { id, businessId } });
     if (!branch) throw new NotFoundException('Futsal not found');
+    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      throw new BadRequestException('Invalid email address');
+    }
     return this.prisma.branch.update({
       where: { id },
       data: {
@@ -512,6 +518,27 @@ export class OwnerService {
       },
       include: { _count: { select: { courts: true, bookings: true, staff: true } } },
     });
+  }
+
+  async deleteBranch(id: string, businessId: string) {
+    const branch = await this.prisma.branch.findFirst({
+      where: { id, businessId },
+      include: { _count: { select: { courts: true, bookings: true } } },
+    });
+    if (!branch) throw new NotFoundException('Futsal not found');
+
+    const activeBookings = await this.prisma.booking.count({
+      where: { branchId: id, status: { in: ['PENDING', 'CONFIRMED'] } },
+    });
+    if (activeBookings > 0) {
+      throw new BadRequestException(
+        'This location has active or upcoming bookings and cannot be deleted. Deactivate it instead.',
+      );
+    }
+
+    // Soft delete: deactivate the branch and its courts rather than removing history.
+    await this.prisma.court.updateMany({ where: { branchId: id }, data: { isActive: false } });
+    return this.prisma.branch.update({ where: { id }, data: { isActive: false } });
   }
 
   // ── Sports ────────────────────────────────────────────────────────
@@ -629,6 +656,51 @@ export class OwnerService {
       data: { isActive: !owner.isActive },
       select: { id: true, name: true, email: true, isActive: true },
     });
+  }
+
+  async updateOwner(ownerId: string, data: { name?: string; email?: string; password?: string; businessId?: string }) {
+    const owner = await this.prisma.admin.findUnique({ where: { id: ownerId } });
+    if (!owner || owner.role !== 'OWNER') throw new NotFoundException('Owner not found');
+
+    if (data.email && data.email !== owner.email) {
+      const existing = await this.prisma.admin.findUnique({ where: { email: data.email } });
+      if (existing) throw new BadRequestException('Email already in use');
+    }
+
+    const updateData: any = {
+      ...(data.name && { name: data.name }),
+      ...(data.email && { email: data.email }),
+      ...(data.businessId && { businessId: data.businessId }),
+    };
+    if (data.password) {
+      updateData.password = await bcrypt.hash(data.password, 10);
+    }
+
+    return this.prisma.admin.update({
+      where: { id: ownerId },
+      data: updateData,
+      select: {
+        id: true, name: true, email: true, role: true, isActive: true, createdAt: true,
+        business: { select: { id: true, name: true } },
+      },
+    });
+  }
+
+  async deleteOwner(ownerId: string) {
+    const owner = await this.prisma.admin.findUnique({ where: { id: ownerId } });
+    if (!owner || owner.role !== 'OWNER') throw new NotFoundException('Owner not found');
+
+    const activeBookings = await this.prisma.booking.count({
+      where: { branch: { businessId: owner.businessId }, status: { in: ['PENDING', 'CONFIRMED'] } },
+    });
+    if (activeBookings > 0) {
+      throw new BadRequestException(
+        'This owner has active or upcoming bookings and cannot be deleted. Deactivate the account instead.',
+      );
+    }
+
+    await this.prisma.admin.delete({ where: { id: ownerId } });
+    return { message: 'Owner deleted successfully' };
   }
 
   async getBusinesses() {

@@ -42,6 +42,7 @@
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "dayjs": "^1.11.13",
+    "nodemailer": "^6.9.16",
     "uuid": "^10.0.0"
   },
   "devDependencies": {

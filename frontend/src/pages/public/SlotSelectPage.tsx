@@ -50,7 +50,7 @@ export default function SlotSelectPage() {
 
   const handleSlotSelect = (slot: TimeSlot) => {
     if (!slot.available) return;
-    dispatch(setSlot({ time: slot.time, endTime: slot.endTime, price: slot.price }));
+    dispatch(setSlot({ time: slot.time, endTime: slot.endTime }));
     navigate('/booking/details');
   };
 
@@ -136,12 +136,7 @@ export default function SlotSelectPage() {
                     : 'bg-red-50 border-red-200 text-red-300 cursor-not-allowed'
                 )}
               >
-                <div>{formatTime(slot.time)}</div>
-                {slot.available && slot.price != null && (
-                  <div className="text-[10px] font-medium opacity-75 mt-0.5">
-                    LKR {slot.price.toLocaleString()}
-                  </div>
-                )}
+                {formatTime(slot.time)}
               </button>
             ))}
           </div>

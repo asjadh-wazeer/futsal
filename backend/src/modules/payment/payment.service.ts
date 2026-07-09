@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationService } from '../notification/notification.service';
 import * as crypto from 'crypto';
@@ -19,6 +19,11 @@ export class PaymentService {
 
     const merchantId = process.env.PAYHERE_MERCHANT_ID;
     const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET;
+    if (!merchantId || !merchantSecret) {
+      throw new ServiceUnavailableException(
+        'Online card payment is not configured yet. Please contact the venue to pay by cash, or try again later.',
+      );
+    }
     const orderId = booking.bookingRef;
     const amount = Number(booking.totalAmount).toFixed(2);
     const currency = 'LKR';

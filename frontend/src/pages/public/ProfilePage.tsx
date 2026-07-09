@@ -22,8 +22,6 @@ export default function ProfilePage() {
   const [editForm, setEditForm] = useState({ name: '', phone: '' });
   const [saving, setSaving] = useState(false);
 
-  if (!token) return <Navigate to="/login" state={{ from: '/profile' }} replace />;
-
   useEffect(() => {
     dispatch(fetchCustomerProfile());
   }, []);
@@ -33,6 +31,8 @@ export default function ProfilePage() {
       setEditForm({ name: customer.name || '', phone: customer.phone || '' });
     }
   }, [customer]);
+
+  if (!token) return <Navigate to="/login" state={{ from: '/profile' }} replace />;
 
   const handleSave = async () => {
     setSaving(true);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Eye, EyeOff, Zap, LogIn } from 'lucide-react';
 import { customerLogin, clearCustomerError } from '../../store/slices/customerAuthSlice';
@@ -22,7 +22,9 @@ export default function LoginPage() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { loading, error, token } = useSelector((s: RootState) => s.customerAuth);
+  const googleError = searchParams.get('error') === 'google_signin_failed';
 
   const from = (location.state as any)?.from || '/';
 
@@ -60,6 +62,12 @@ export default function LoginPage() {
             <GoogleIcon />
             Continue with Google
           </button>
+
+          {googleError && (
+            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-700">
+              We couldn't sign you in with Google. Please try again, or sign in with your email/phone below.
+            </div>
+          )}
 
           <div className="flex items-center gap-3 mb-5">
             <div className="flex-1 h-px bg-gray-200" />
