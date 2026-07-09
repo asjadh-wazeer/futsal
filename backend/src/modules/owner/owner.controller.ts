@@ -139,6 +139,11 @@ export class OwnerController {
     return this.service.updateBranch(id, req.user.businessId, body);
   }
 
+  @Delete('branches/:id')
+  deleteBranch(@Request() req, @Param('id') id: string) {
+    return this.service.deleteBranch(id, req.user.businessId);
+  }
+
   @Get('sports')
   getSports() {
     return this.service.getSports();
@@ -181,6 +186,16 @@ export class OwnerController {
   @Patch('manage/owners/:id/toggle')
   toggleOwnerStatus(@Param('id') id: string) {
     return this.service.toggleOwnerStatus(id);
+  }
+
+  @Patch('manage/owners/:id')
+  updateOwner(@Param('id') id: string, @Body() body: any) {
+    return this.service.updateOwner(id, body);
+  }
+
+  @Delete('manage/owners/:id')
+  deleteOwner(@Param('id') id: string) {
+    return this.service.deleteOwner(id);
   }
 
   @Get('manage/businesses')

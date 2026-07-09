@@ -17,6 +17,8 @@ import RegisterPage from './pages/public/RegisterPage';
 import GoogleCallbackPage from './pages/public/GoogleCallbackPage';
 import ProfilePage from './pages/public/ProfilePage';
 import FutsalDiscoveryPage from './pages/public/FutsalDiscoveryPage';
+import AboutPage from './pages/public/AboutPage';
+import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
 
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import DashboardPage from './pages/admin/DashboardPage';
@@ -41,6 +43,7 @@ import OwnerStaffPage from './pages/owner/OwnerStaffPage';
 import OwnerSettlementsPage from './pages/owner/OwnerSettlementsPage';
 
 import StaffLayout from './layouts/StaffLayout';
+import StaffLoginPage from './pages/staff/StaffLoginPage';
 import StaffDashboardPage from './pages/staff/StaffDashboardPage';
 import StaffBookingsPage from './pages/staff/StaffBookingsPage';
 
@@ -64,7 +67,7 @@ function OwnerRoute({ children }: { children: React.ReactNode }) {
 function StaffRoute({ children }: { children: React.ReactNode }) {
   const token = useSelector((s: RootState) => s.auth.token);
   const admin = useSelector((s: RootState) => s.auth.admin);
-  if (!token) return <Navigate to="/owner/login" replace />;
+  if (!token) return <Navigate to="/staff/login" replace />;
   if (admin?.role === 'OWNER') return <Navigate to="/owner" replace />;
   return <>{children}</>;
 }
@@ -89,6 +92,8 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/futsals" element={<FutsalDiscoveryPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
       </Route>
 
       {/* Google OAuth callback — no layout wrapper needed */}
@@ -135,7 +140,8 @@ export default function App() {
         <Route path="settlements" element={<OwnerSettlementsPage />} />
       </Route>
 
-      {/* Staff portal — shares owner login page */}
+      {/* Staff portal */}
+      <Route path="/staff/login" element={<StaffLoginPage />} />
       <Route
         path="/staff"
         element={

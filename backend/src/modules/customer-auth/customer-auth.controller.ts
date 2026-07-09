@@ -29,9 +29,13 @@ export class CustomerAuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleCallback(@Request() req, @Res() res: Response) {
-    const result = await this.service.googleLogin(req.user);
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    res.redirect(`${frontendUrl}/auth/callback?token=${result.access_token}&name=${encodeURIComponent(result.customer.name)}`);
+    try {
+      const result = await this.service.googleLogin(req.user);
+      res.redirect(`${frontendUrl}/auth/callback?token=${result.access_token}&name=${encodeURIComponent(result.customer.name)}`);
+    } catch (err) {
+      res.redirect(`${frontendUrl}/login?error=google_signin_failed`);
+    }
   }
 
   @UseGuards(CustomerJwtGuard)

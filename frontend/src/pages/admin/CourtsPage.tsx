@@ -14,7 +14,7 @@ export default function CourtsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Court | null>(null);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ branchId: '', sportId: '', name: '', description: '', pricePerHour: '', minDuration: '60', maxDuration: '120' });
+  const [form, setForm] = useState({ branchId: '', sportIds: [] as string[], name: '', description: '', pricePerHour: '', minDuration: '60', maxDuration: '120' });
 
   const load = async () => {
     setLoading(true);
@@ -32,18 +32,22 @@ export default function CourtsPage() {
 
   const openAdd = () => {
     setEditing(null);
-    setForm({ branchId: branches[0]?.id || '', sportId: sports[0]?.id || '', name: '', description: '', pricePerHour: '', minDuration: '60', maxDuration: '120' });
+    setForm({ branchId: branches[0]?.id || '', sportIds: sports[0] ? [sports[0].id] : [], name: '', description: '', pricePerHour: '', minDuration: '60', maxDuration: '120' });
     setModalOpen(true);
   };
 
   const openEdit = (court: Court) => {
     setEditing(court);
-    setForm({ branchId: court.branchId, sportId: court.sportId, name: court.name, description: court.description || '', pricePerHour: String(court.pricePerHour), minDuration: String(court.minDuration), maxDuration: String(court.maxDuration) });
+    setForm({ branchId: court.branchId, sportIds: (court.sports || []).map((s: Sport) => s.id), name: court.name, description: court.description || '', pricePerHour: String(court.pricePerHour), minDuration: String(court.minDuration), maxDuration: String(court.maxDuration) });
     setModalOpen(true);
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (form.sportIds.length === 0) {
+      toast.error('Select at least one sport');
+      return;
+    }
     setSaving(true);
     try {
       const payload = { ...form, pricePerHour: parseFloat(form.pricePerHour), minDuration: parseInt(form.minDuration), maxDuration: parseInt(form.maxDuration) };
@@ -100,11 +104,15 @@ export default function CourtsPage() {
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-xl bg-brand-100 flex items-center justify-center text-xl shrink-0">
-                    {court.sport?.name?.includes('Football') ? '⚽' : court.sport?.name?.includes('Cricket') ? '🏏' : '🏸'}
+                    {court.sports?.[0]?.name?.includes('Football') ? '⚽' : court.sports?.[0]?.name?.includes('Cricket') ? '🏏' : '🏸'}
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-900">{court.name}</h3>
-                    <span className="text-xs text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">{court.sport?.name}</span>
+                    <div className="flex flex-wrap gap-1 mt-0.5">
+                      {court.sports?.map((s) => (
+                        <span key={s.id} className="text-xs text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">{s.name}</span>
+                      ))}
+                    </div>
                   </div>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${court.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
@@ -150,10 +158,22 @@ export default function CourtsPage() {
             </select>
           </div>
           <div>
-            <label className="label">Sport</label>
-            <select value={form.sportId} onChange={(e) => setForm(x => ({ ...x, sportId: e.target.value }))} className="input-field" required>
-              {sports.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
+            <label className="label">Sports</label>
+            <div className="grid grid-cols-2 gap-2">
+              {sports.map((s) => (
+                <label key={s.id} className="flex items-center gap-2 text-sm border border-gray-200 rounded-lg px-3 py-2 cursor-pointer hover:bg-gray-50">
+                  <input
+                    type="checkbox"
+                    checked={form.sportIds.includes(s.id)}
+                    onChange={(e) => setForm((x) => ({
+                      ...x,
+                      sportIds: e.target.checked ? [...x.sportIds, s.id] : x.sportIds.filter((id) => id !== s.id),
+                    }))}
+                  />
+                  {s.name}
+                </label>
+              ))}
+            </div>
           </div>
           {f('name', 'Court Name')}
           {f('description', 'Description', 'text', false)}

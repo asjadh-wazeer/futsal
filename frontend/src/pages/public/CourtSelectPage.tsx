@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
-import { setCourt, setSport } from '../../store/slices/bookingSlice';
+import { setCourt, setSport, setPreferredSport } from '../../store/slices/bookingSlice';
 import { RootState } from '../../store';
 import { publicApi } from '../../services/api';
 import BookingSteps from '../../components/public/BookingSteps';
@@ -28,7 +28,7 @@ export default function CourtSelectPage() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { selectedBranch, selectedSport } = useSelector((s: RootState) => s.booking);
+  const { selectedBranch, selectedSport, preferredSportName } = useSelector((s: RootState) => s.booking);
 
   useEffect(() => {
     if (!selectedBranch) { navigate('/booking/branch'); return; }
@@ -39,6 +39,12 @@ export default function CourtSelectPage() {
     ]).then(([sRes, cRes]: any[]) => {
       setSports(sRes.data);
       setAllCourts(cRes.data);
+
+      if (preferredSportName) {
+        const match = sRes.data.find((s: Sport) => s.name === preferredSportName);
+        if (match) dispatch(setSport(match));
+        dispatch(setPreferredSport(null));
+      }
     }).finally(() => setLoading(false));
   }, [selectedBranch]);
 
