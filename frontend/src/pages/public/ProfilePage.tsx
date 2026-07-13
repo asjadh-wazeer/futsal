@@ -183,26 +183,57 @@ export default function ProfilePage() {
   );
 }
 
-function BookingCard({ booking: b, isUpcoming }: { booking: Booking; isUpcoming?: boolean }) {
-  const sportIcon = b.court?.sport?.name?.includes('Football') ? '⚽' : b.court?.sport?.name?.includes('Cricket') ? '🏏' : '🏸';
+function BookingCard({
+  booking: b,
+  isUpcoming,
+}: {
+  booking: Booking;
+  isUpcoming?: boolean;
+}) {
+  const sportName = b.court?.sports?.[0]?.name || '';
+
+  const sportIcon = sportName.includes('Football')
+    ? '⚽'
+    : sportName.includes('Cricket')
+      ? '🏏'
+      : '🏸';
 
   return (
-    <div className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${isUpcoming ? 'border-brand-200 bg-brand-50' : 'border-gray-100 bg-gray-50'}`}>
+    <div
+      className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${
+        isUpcoming
+          ? 'border-brand-200 bg-brand-50'
+          : 'border-gray-100 bg-gray-50'
+      }`}
+    >
       <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-xl shadow-sm shrink-0">
         {sportIcon}
       </div>
+
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
-          <span className="font-mono text-xs font-bold text-brand-600">{b.bookingRef}</span>
+          <span className="font-mono text-xs font-bold text-brand-600">
+            {b.bookingRef}
+          </span>
+
           <StatusBadge status={b.status} />
         </div>
-        <p className="font-semibold text-gray-900 text-sm truncate">{b.court?.name}</p>
+
+        <p className="font-semibold text-gray-900 text-sm truncate">
+          {b.court?.name}
+        </p>
+
         <p className="text-xs text-gray-500">
-          {dayjs(b.date).format('DD MMM YYYY')} · {b.startTime}–{b.endTime} · {b.branch?.name}
+          {dayjs(b.date).format('DD MMM YYYY')} · {b.startTime}–{b.endTime} ·{' '}
+          {b.branch?.name}
         </p>
       </div>
+
       <div className="text-right shrink-0">
-        <p className="font-bold text-gray-900 text-sm">LKR {Number(b.totalAmount).toLocaleString()}</p>
+        <p className="font-bold text-gray-900 text-sm">
+          LKR {Number(b.totalAmount).toLocaleString()}
+        </p>
+
         <StatusBadge status={b.payment?.status || 'PENDING'} />
       </div>
     </div>

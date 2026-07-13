@@ -81,6 +81,7 @@ export interface Customer {
   name: string;
   email?: string;
   phone: string;
+  createdAt: string;
   totalSpent: number;
   visitCount: number;
   bookings?: Booking[];
