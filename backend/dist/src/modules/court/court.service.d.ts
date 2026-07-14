@@ -77,9 +77,8 @@ export declare class CourtService {
         date: string;
         slots: {
             time: string;
-            endTime: string;
             available: boolean;
-            price: number;
+            endTime: string;
         }[];
     }>;
     create(data: any): Promise<{

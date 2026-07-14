@@ -6,13 +6,18 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Global API prefix
   app.setGlobalPrefix('api');
 
+  // CORS
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL || 'https://futsal.webtezza.com',
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
+  // Global validation
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -21,6 +26,7 @@ async function bootstrap() {
     }),
   );
 
+  // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Futsal Booking API')
     .setDescription('Futsal & Sports Booking Management System')
@@ -29,12 +35,18 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup('api/docs', app, document);
 
+  // Hostinger provides PORT automatically in many Node.js deployments
   const port = process.env.PORT || 3001;
-  await app.listen(port);
-  console.log(`🚀 Application running on: http://localhost:${port}/api`);
-  console.log(`📖 Swagger docs: http://localhost:${port}/api/docs`);
+
+  // Listen on all network interfaces
+  await app.listen(port, '0.0.0.0');
+
+  console.log(`Application running on port ${port}`);
+  console.log(`API available at /api`);
+  console.log(`Swagger docs available at /api/docs`);
 }
 
 bootstrap();

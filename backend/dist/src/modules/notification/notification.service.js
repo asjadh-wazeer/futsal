@@ -10,18 +10,78 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationService = void 0;
 const common_1 = require("@nestjs/common");
 const dayjs = require("dayjs");
+const nodemailer = require("nodemailer");
 let NotificationService = NotificationService_1 = class NotificationService {
     constructor() {
         this.logger = new common_1.Logger(NotificationService_1.name);
+        this.transporter = null;
+    }
+    getTransporter() {
+        if (this.transporter)
+            return this.transporter;
+        const host = process.env.SMTP_HOST;
+        const port = process.env.SMTP_PORT;
+        const user = process.env.SMTP_USER;
+        const pass = process.env.SMTP_PASS;
+        if (!host || !user || !pass)
+            return null;
+        this.transporter = nodemailer.createTransport({
+            host,
+            port: port ? parseInt(port, 10) : 587,
+            secure: port === '465',
+            auth: { user, pass },
+        });
+        return this.transporter;
     }
     async sendBookingConfirmation(booking) {
         const phone = booking.customer?.phone;
-        if (!phone)
-            return;
-        const whatsappSent = await this.sendWhatsApp(phone, booking);
-        if (!whatsappSent) {
-            await this.sendSMS(phone, this.buildSmsMessage(booking));
+        const email = booking.customer?.email;
+        if (phone) {
+            const whatsappSent = await this.sendWhatsApp(phone, booking);
+            if (!whatsappSent) {
+                await this.sendSMS(phone, this.buildSmsMessage(booking));
+            }
         }
+        if (email) {
+            await this.sendEmail(email, booking);
+        }
+    }
+    async sendEmail(email, booking) {
+        const transporter = this.getTransporter();
+        if (!transporter) {
+            this.logger.warn('Email not configured (SMTP_HOST / SMTP_USER / SMTP_PASS missing)');
+            return;
+        }
+        const from = process.env.SMTP_FROM || 'Lanka Futsal Hub <no-reply@lankafutsal.lk>';
+        try {
+            await transporter.sendMail({
+                from,
+                to: email,
+                subject: `Booking Confirmed — ${booking.bookingRef}`,
+                html: this.buildEmailHtml(booking),
+                text: this.buildSmsMessage(booking),
+            });
+            this.logger.log(`Confirmation email sent to ${email} for booking ${booking.bookingRef}`);
+        }
+        catch (err) {
+            this.logger.warn(`Email error: ${err}`);
+        }
+    }
+    buildEmailHtml(booking) {
+        return `
+      <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2 style="color: #059669;">Booking Confirmed!</h2>
+        <p>Hi ${booking.customer?.name || 'there'}, your booking is confirmed.</p>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+          <tr><td style="padding: 6px 0; color: #6b7280;">Reference</td><td style="padding: 6px 0; font-weight: bold;">${booking.bookingRef}</td></tr>
+          <tr><td style="padding: 6px 0; color: #6b7280;">Court</td><td style="padding: 6px 0;">${booking.court?.name || '-'}</td></tr>
+          <tr><td style="padding: 6px 0; color: #6b7280;">Date</td><td style="padding: 6px 0;">${dayjs(booking.date).format('D MMM YYYY')}</td></tr>
+          <tr><td style="padding: 6px 0; color: #6b7280;">Time</td><td style="padding: 6px 0;">${booking.startTime} – ${booking.endTime}</td></tr>
+          <tr><td style="padding: 6px 0; color: #6b7280;">Amount</td><td style="padding: 6px 0;">LKR ${Number(booking.totalAmount).toLocaleString()}</td></tr>
+        </table>
+        <p style="margin-top: 16px; color: #6b7280; font-size: 13px;">Please keep your reference number handy when you arrive at the venue.</p>
+      </div>
+    `;
     }
     async sendWhatsApp(phone, booking) {
         const token = process.env.META_ACCESS_TOKEN;

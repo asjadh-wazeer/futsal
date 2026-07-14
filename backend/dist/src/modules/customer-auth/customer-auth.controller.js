@@ -32,9 +32,14 @@ let CustomerAuthController = class CustomerAuthController {
     }
     googleLogin() { }
     async googleCallback(req, res) {
-        const result = await this.service.googleLogin(req.user);
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-        res.redirect(`${frontendUrl}/auth/callback?token=${result.access_token}&name=${encodeURIComponent(result.customer.name)}`);
+        try {
+            const result = await this.service.googleLogin(req.user);
+            res.redirect(`${frontendUrl}/auth/callback?token=${result.access_token}&name=${encodeURIComponent(result.customer.name)}`);
+        }
+        catch (err) {
+            res.redirect(`${frontendUrl}/login?error=google_signin_failed`);
+        }
     }
     getProfile(req) {
         return this.service.getProfile(req.user.sub);

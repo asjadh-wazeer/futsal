@@ -28,6 +28,9 @@ let PaymentService = class PaymentService {
             throw new common_1.NotFoundException('Booking not found');
         const merchantId = process.env.PAYHERE_MERCHANT_ID;
         const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET;
+        if (!merchantId || !merchantSecret) {
+            throw new common_1.ServiceUnavailableException('Online card payment is not configured yet. Please contact the venue to pay by cash, or try again later.');
+        }
         const orderId = booking.bookingRef;
         const amount = Number(booking.totalAmount).toFixed(2);
         const currency = 'LKR';

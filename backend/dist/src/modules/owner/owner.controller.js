@@ -90,6 +90,9 @@ let OwnerController = class OwnerController {
     updateBranch(req, id, body) {
         return this.service.updateBranch(id, req.user.businessId, body);
     }
+    deleteBranch(req, id) {
+        return this.service.deleteBranch(id, req.user.businessId);
+    }
     getSports() {
         return this.service.getSports();
     }
@@ -113,6 +116,12 @@ let OwnerController = class OwnerController {
     }
     toggleOwnerStatus(id) {
         return this.service.toggleOwnerStatus(id);
+    }
+    updateOwner(id, body) {
+        return this.service.updateOwner(id, body);
+    }
+    deleteOwner(id) {
+        return this.service.deleteOwner(id);
     }
     getBusinesses() {
         return this.service.getBusinesses();
@@ -286,6 +295,14 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], OwnerController.prototype, "updateBranch", null);
 __decorate([
+    (0, common_1.Delete)('branches/:id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], OwnerController.prototype, "deleteBranch", null);
+__decorate([
     (0, common_1.Get)('sports'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
@@ -345,6 +362,21 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], OwnerController.prototype, "toggleOwnerStatus", null);
+__decorate([
+    (0, common_1.Patch)('manage/owners/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], OwnerController.prototype, "updateOwner", null);
+__decorate([
+    (0, common_1.Delete)('manage/owners/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], OwnerController.prototype, "deleteOwner", null);
 __decorate([
     (0, common_1.Get)('manage/businesses'),
     __metadata("design:type", Function),

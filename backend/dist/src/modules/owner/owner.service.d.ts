@@ -762,6 +762,22 @@ export declare class OwnerService {
         closeTime: string;
         slotDuration: number;
     }>;
+    deleteBranch(id: string, businessId: string): Promise<{
+        id: string;
+        name: string;
+        phone: string | null;
+        email: string | null;
+        address: string;
+        city: string;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        businessId: string;
+        mapUrl: string | null;
+        openTime: string;
+        closeTime: string;
+        slotDuration: number;
+    }>;
     getSports(): Promise<{
         id: string;
         name: string;
@@ -860,6 +876,26 @@ export declare class OwnerService {
         name: string;
         email: string;
         isActive: boolean;
+    }>;
+    updateOwner(ownerId: string, data: {
+        name?: string;
+        email?: string;
+        password?: string;
+        businessId?: string;
+    }): Promise<{
+        id: string;
+        name: string;
+        email: string;
+        isActive: boolean;
+        createdAt: Date;
+        business: {
+            id: string;
+            name: string;
+        };
+        role: import(".prisma/client").$Enums.AdminRole;
+    }>;
+    deleteOwner(ownerId: string): Promise<{
+        message: string;
     }>;
     getBusinesses(): Promise<{
         id: string;

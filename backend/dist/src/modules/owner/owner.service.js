@@ -427,6 +427,9 @@ let OwnerService = class OwnerService {
         });
     }
     async createBranch(businessId, data) {
+        if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+            throw new common_1.BadRequestException('Invalid email address');
+        }
         return this.prisma.branch.create({
             data: {
                 businessId,
@@ -438,7 +441,7 @@ let OwnerService = class OwnerService {
                 mapUrl: data.mapUrl,
                 openTime: data.openTime || '06:00',
                 closeTime: data.closeTime || '22:00',
-                slotDuration: parseInt(data.slotDuration) || 60,
+                slotDuration: data.slotDuration || 60,
             },
             include: { _count: { select: { courts: true, bookings: true, staff: true } } },
         });
@@ -447,6 +450,9 @@ let OwnerService = class OwnerService {
         const branch = await this.prisma.branch.findFirst({ where: { id, businessId } });
         if (!branch)
             throw new common_1.NotFoundException('Futsal not found');
+        if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+            throw new common_1.BadRequestException('Invalid email address');
+        }
         return this.prisma.branch.update({
             where: { id },
             data: {
@@ -463,6 +469,22 @@ let OwnerService = class OwnerService {
             },
             include: { _count: { select: { courts: true, bookings: true, staff: true } } },
         });
+    }
+    async deleteBranch(id, businessId) {
+        const branch = await this.prisma.branch.findFirst({
+            where: { id, businessId },
+            include: { _count: { select: { courts: true, bookings: true } } },
+        });
+        if (!branch)
+            throw new common_1.NotFoundException('Futsal not found');
+        const activeBookings = await this.prisma.booking.count({
+            where: { branchId: id, status: { in: ['PENDING', 'CONFIRMED'] } },
+        });
+        if (activeBookings > 0) {
+            throw new common_1.BadRequestException('This location has active or upcoming bookings and cannot be deleted. Deactivate it instead.');
+        }
+        await this.prisma.court.updateMany({ where: { branchId: id }, data: { isActive: false } });
+        return this.prisma.branch.update({ where: { id }, data: { isActive: false } });
     }
     async getSports() {
         return this.prisma.sport.findMany({ where: { isActive: true }, orderBy: { name: 'asc' } });
@@ -569,6 +591,45 @@ let OwnerService = class OwnerService {
             data: { isActive: !owner.isActive },
             select: { id: true, name: true, email: true, isActive: true },
         });
+    }
+    async updateOwner(ownerId, data) {
+        const owner = await this.prisma.admin.findUnique({ where: { id: ownerId } });
+        if (!owner || owner.role !== 'OWNER')
+            throw new common_1.NotFoundException('Owner not found');
+        if (data.email && data.email !== owner.email) {
+            const existing = await this.prisma.admin.findUnique({ where: { email: data.email } });
+            if (existing)
+                throw new common_1.BadRequestException('Email already in use');
+        }
+        const updateData = {
+            ...(data.name && { name: data.name }),
+            ...(data.email && { email: data.email }),
+            ...(data.businessId && { businessId: data.businessId }),
+        };
+        if (data.password) {
+            updateData.password = await bcrypt.hash(data.password, 10);
+        }
+        return this.prisma.admin.update({
+            where: { id: ownerId },
+            data: updateData,
+            select: {
+                id: true, name: true, email: true, role: true, isActive: true, createdAt: true,
+                business: { select: { id: true, name: true } },
+            },
+        });
+    }
+    async deleteOwner(ownerId) {
+        const owner = await this.prisma.admin.findUnique({ where: { id: ownerId } });
+        if (!owner || owner.role !== 'OWNER')
+            throw new common_1.NotFoundException('Owner not found');
+        const activeBookings = await this.prisma.booking.count({
+            where: { branch: { businessId: owner.businessId }, status: { in: ['PENDING', 'CONFIRMED'] } },
+        });
+        if (activeBookings > 0) {
+            throw new common_1.BadRequestException('This owner has active or upcoming bookings and cannot be deleted. Deactivate the account instead.');
+        }
+        await this.prisma.admin.delete({ where: { id: ownerId } });
+        return { message: 'Owner deleted successfully' };
     }
     async getBusinesses() {
         return this.prisma.business.findMany({
