@@ -9,6 +9,10 @@
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
+<<<<<<< HEAD
+=======
+    "baseUrl": "./",
+>>>>>>> 94bed344dab7862169a2fdbc300ef6882d81b191
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
@@ -17,4 +21,8 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 94bed344dab7862169a2fdbc300ef6882d81b191

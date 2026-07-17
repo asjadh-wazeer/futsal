@@ -6,6 +6,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+<<<<<<< HEAD
   // Global API prefix
   app.setGlobalPrefix('api');
 
@@ -18,6 +19,15 @@ async function bootstrap() {
   });
 
   // Global validation
+=======
+  app.setGlobalPrefix('api');
+
+  app.enableCors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true,
+  });
+
+>>>>>>> 94bed344dab7862169a2fdbc300ef6882d81b191
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -26,7 +36,10 @@ async function bootstrap() {
     }),
   );
 
+<<<<<<< HEAD
   // Swagger configuration
+=======
+>>>>>>> 94bed344dab7862169a2fdbc300ef6882d81b191
   const config = new DocumentBuilder()
     .setTitle('Futsal Booking API')
     .setDescription('Futsal & Sports Booking Management System')
@@ -35,6 +48,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+<<<<<<< HEAD
 
   SwaggerModule.setup('api/docs', app, document);
 
@@ -50,3 +64,14 @@ async function bootstrap() {
 }
 
 bootstrap();
+=======
+  SwaggerModule.setup('api/docs', app, document);
+
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+  console.log(`🚀 Application running on: http://localhost:${port}/api`);
+  console.log(`📖 Swagger docs: http://localhost:${port}/api/docs`);
+}
+
+bootstrap();
+>>>>>>> 94bed344dab7862169a2fdbc300ef6882d81b191
