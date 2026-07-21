@@ -22,8 +22,6 @@ export default function ProfilePage() {
   const [editForm, setEditForm] = useState({ name: '', phone: '' });
   const [saving, setSaving] = useState(false);
 
-  if (!token) return <Navigate to="/login" state={{ from: '/profile' }} replace />;
-
   useEffect(() => {
     dispatch(fetchCustomerProfile());
   }, []);
@@ -33,6 +31,8 @@ export default function ProfilePage() {
       setEditForm({ name: customer.name || '', phone: customer.phone || '' });
     }
   }, [customer]);
+
+  if (!token) return <Navigate to="/login" state={{ from: '/profile' }} replace />;
 
   const handleSave = async () => {
     setSaving(true);
@@ -184,7 +184,7 @@ export default function ProfilePage() {
 }
 
 function BookingCard({ booking: b, isUpcoming }: { booking: Booking; isUpcoming?: boolean }) {
-  const sportIcon = b.court?.sport?.name?.includes('Football') ? '⚽' : b.court?.sport?.name?.includes('Cricket') ? '🏏' : '🏸';
+  const sportIcon = b.court?.sports?.some((s) => s.name.includes('Football')) ? '⚽' : b.court?.sports?.some((s) => s.name.includes('Cricket')) ? '🏏' : '🏸';
 
   return (
     <div className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${isUpcoming ? 'border-brand-200 bg-brand-50' : 'border-gray-100 bg-gray-50'}`}>

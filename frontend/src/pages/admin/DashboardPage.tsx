@@ -166,7 +166,7 @@ export default function DashboardPage() {
             {data?.recentBookings?.slice(0, 6).map((booking: Booking) => (
               <div key={booking.id} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
                 <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 text-base">
-                  {booking.court?.sport?.name?.includes('Football') ? '⚽' : booking.court?.sport?.name?.includes('Cricket') ? '🏏' : '🏸'}
+                  {booking.court?.sports?.some((s) => s.name.includes('Football')) ? '⚽' : booking.court?.sports?.some((s) => s.name.includes('Cricket')) ? '🏏' : '🏸'}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">{booking.customer?.name}</p>

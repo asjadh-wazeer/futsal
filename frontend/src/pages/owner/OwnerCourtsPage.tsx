@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Tag, Calendar, Building2, CheckCircle, XCircle, ChevronDown, RefreshCw, MapPin } from 'lucide-react';
+import { Plus, Edit2, Trash2, Tag, Calendar, Building2, CheckCircle, XCircle, ChevronDown, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { ownerApi } from '../../services/api';
 import { Court, PricingRule, CourtSchedule, Sport, Branch } from '../../types';
@@ -92,9 +92,13 @@ export default function OwnerCourtsPage() {
     if (!form.name || !form.branchId || !form.pricePerHour) {
       toast.error('Fill in all required fields'); return;
     }
+    const price = parseFloat(form.pricePerHour);
+    if (isNaN(price) || price <= 0) {
+      toast.error('Please enter a valid price greater than 0'); return;
+    }
     setSaving(true);
     try {
-      const payload = { ...form, pricePerHour: parseFloat(form.pricePerHour) };
+      const payload = { ...form, pricePerHour: price };
       if (editCourt) {
         const res = await ownerApi.updateCourt(editCourt.id, payload);
         setCourts((prev) => prev.map((c) => c.id === editCourt.id ? { ...c, ...res.data } : c));
@@ -131,10 +135,12 @@ export default function OwnerCourtsPage() {
   // Pricing rules
   const handleAddRule = async () => {
     if (!editCourt || !ruleForm.name || !ruleForm.pricePerHour) { toast.error('Fill name and price'); return; }
+    const rulePrice = parseFloat(ruleForm.pricePerHour);
+    if (isNaN(rulePrice) || rulePrice <= 0) { toast.error('Please enter a valid price greater than 0'); return; }
     if (ruleForm.endHour <= ruleForm.startHour) { toast.error('End time must be after start time'); return; }
     try {
       const res = await ownerApi.createPricingRule(editCourt.id, {
-        ...ruleForm, pricePerHour: parseFloat(ruleForm.pricePerHour),
+        ...ruleForm, pricePerHour: rulePrice,
       });
       setRules((prev) => [...prev, res.data]);
       setRuleForm({ name: '', pricePerHour: '', dayType: 'ALL', startHour: branchOpenHour, endHour: branchCloseHour, priority: 0 });
@@ -232,14 +238,6 @@ export default function OwnerCourtsPage() {
                       {court.sports?.map((s) => s.name).join(', ') || 'No sport assigned'}
                       {court.size ? ` · ${court.size}` : ''}
                     </p>
-                    {(() => {
-                      const branch = court.branch || branches.find((b) => b.id === court.branchId);
-                      return branch ? (
-                        <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
-                          <MapPin className="w-3 h-3 shrink-0" />{branch.name}{branch.city ? ` · ${branch.city}` : ''}
-                        </p>
-                      ) : null;
-                    })()}
                   </div>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${court.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
@@ -569,6 +567,18 @@ function CourtForm({ form, setForm, sports, branches }: {
         <select value={form.size} onChange={(e) => setForm((f: any) => ({ ...f, size: e.target.value }))} className="input-field">
           <option value="">Select size</option>
           {SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
+      </div>
+      <div>
+        <label className="label">Min Duration (min)</label>
+        <select value={form.minDuration} onChange={(e) => setForm((f: any) => ({ ...f, minDuration: parseInt(e.target.value) }))} className="input-field">
+          {[30, 60, 90, 120].map((v) => <option key={v} value={v}>{v} min</option>)}
+        </select>
+      </div>
+      <div>
+        <label className="label">Max Duration (min)</label>
+        <select value={form.maxDuration} onChange={(e) => setForm((f: any) => ({ ...f, maxDuration: parseInt(e.target.value) }))} className="input-field">
+          {[60, 90, 120, 180, 240].map((v) => <option key={v} value={v}>{v} min</option>)}
         </select>
       </div>
       <div className="sm:col-span-2">

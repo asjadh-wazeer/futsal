@@ -5,7 +5,7 @@ interface BookingState {
   selectedSport: any | null;
   selectedCourt: any | null;
   selectedDate: string;
-  selectedSlot: { time: string; endTime: string; price?: number } | null;
+  selectedSlot: { time: string; endTime: string } | null;
   customerDetails: {
     name: string;
     phone: string;
@@ -13,6 +13,7 @@ interface BookingState {
     notes: string;
   };
   completedBooking: any | null;
+  preferredSportName: string | null;
 }
 
 const initialState: BookingState = {
@@ -23,6 +24,7 @@ const initialState: BookingState = {
   selectedSlot: null,
   customerDetails: { name: '', phone: '', email: '', notes: '' },
   completedBooking: null,
+  preferredSportName: null,
 };
 
 const bookingSlice = createSlice({
@@ -48,7 +50,7 @@ const bookingSlice = createSlice({
       state.selectedDate = action.payload;
       state.selectedSlot = null;
     },
-    setSlot: (state, action: PayloadAction<{ time: string; endTime: string; price?: number }>) => {
+    setSlot: (state, action: PayloadAction<{ time: string; endTime: string }>) => {
       state.selectedSlot = action.payload;
     },
     setCustomerDetails: (state, action: PayloadAction<Partial<BookingState['customerDetails']>>) => {
@@ -57,9 +59,12 @@ const bookingSlice = createSlice({
     setCompletedBooking: (state, action: PayloadAction<any>) => {
       state.completedBooking = action.payload;
     },
+    setPreferredSport: (state, action: PayloadAction<string | null>) => {
+      state.preferredSportName = action.payload;
+    },
     resetBooking: () => initialState,
   },
 });
 
-export const { setBranch, setSport, setCourt, setDate, setSlot, setCustomerDetails, setCompletedBooking, resetBooking } = bookingSlice.actions;
+export const { setBranch, setSport, setCourt, setDate, setSlot, setCustomerDetails, setCompletedBooking, setPreferredSport, resetBooking } = bookingSlice.actions;
 export default bookingSlice.reducer;

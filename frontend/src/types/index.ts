@@ -84,6 +84,7 @@ export interface Customer {
   totalSpent: number;
   visitCount: number;
   bookings?: Booking[];
+  createdAt: string;
   _count?: { bookings: number };
 }
 
@@ -129,7 +130,6 @@ export interface TimeSlot {
   time: string;
   endTime: string;
   available: boolean;
-  price?: number;
 }
 
 export interface Admin {
