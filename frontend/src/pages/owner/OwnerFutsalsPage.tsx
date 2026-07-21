@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit2, MapPin, Phone, Mail, Clock, Building2, CalendarDays, RefreshCw } from 'lucide-react';
+import { Plus, Edit2, MapPin, Phone, Mail, Clock, Building2, CalendarDays, RefreshCw, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { ownerApi } from '../../services/api';
 import { Branch } from '../../types';
@@ -19,6 +19,7 @@ export default function OwnerFutsalsPage() {
   const [editing, setEditing] = useState<Branch | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const load = () => {
     setLoading(true);
@@ -36,13 +37,36 @@ export default function OwnerFutsalsPage() {
       name: b.name, address: b.address, city: b.city,
       phone: b.phone || '', email: b.email || '', mapUrl: (b as any).mapUrl || '',
       openTime: b.openTime, closeTime: b.closeTime, slotDuration: b.slotDuration,
-    });
+      isActive: b.isActive,
+    } as any);
     setShowModal(true);
+  };
+
+  const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+  const handleDelete = async (branch: Branch) => {
+    if (!window.confirm(`Delete "${branch.name}"? This will remove it and its courts from your listings. Bookings with active history can't be deleted.`)) {
+      return;
+    }
+    setDeletingId(branch.id);
+    try {
+      await ownerApi.deleteBranch(branch.id);
+      setBranches((prev) => prev.map((b) => b.id === branch.id ? { ...b, isActive: false } : b));
+      toast.success('Futsal location deleted');
+    } catch (e: any) {
+      toast.error(e.response?.data?.message || 'Failed to delete');
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const handleSave = async () => {
     if (!form.name.trim() || !form.address.trim() || !form.city.trim()) {
       toast.error('Name, address and city are required');
+      return;
+    }
+    if (form.email.trim() && !isValidEmail(form.email.trim())) {
+      toast.error('Please enter a valid email address');
       return;
     }
     setSaving(true);
@@ -65,7 +89,10 @@ export default function OwnerFutsalsPage() {
   };
 
   const f = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    setForm((prev) => ({
+      ...prev,
+      [field]: field === 'slotDuration' ? parseInt(e.target.value, 10) : e.target.value,
+    }));
 
   if (loading) {
     return (
@@ -139,6 +166,14 @@ export default function OwnerFutsalsPage() {
                     className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
                   >
                     <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(branch)}
+                    disabled={deletingId === branch.id}
+                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                    title="Delete location"
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -253,6 +288,15 @@ export default function OwnerFutsalsPage() {
             <label className="label">Closing Time</label>
             <select value={form.closeTime} onChange={f('closeTime')} className="input-field">
               {HOURS.map((h) => <option key={h} value={h}>{h}</option>)}
+            </select>
+          </div>
+
+          <div>
+            <label className="label">Default Slot Duration</label>
+            <select value={form.slotDuration} onChange={f('slotDuration')} className="input-field">
+              {[30, 45, 60, 90, 120].map((v) => (
+                <option key={v} value={v}>{v} minutes</option>
+              ))}
             </select>
           </div>
 

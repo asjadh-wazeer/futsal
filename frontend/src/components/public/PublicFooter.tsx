@@ -1,7 +1,17 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { Zap, Phone, Mail, MapPin, Instagram, Facebook, Twitter } from 'lucide-react';
+import { setPreferredSport } from '../../store/slices/bookingSlice';
 
 export default function PublicFooter() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleSportClick = (sportName: string) => {
+    dispatch(setPreferredSport(sportName));
+    navigate('/booking/branch');
+  };
+
   return (
     <footer className="bg-gray-900 text-gray-400">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -31,18 +41,17 @@ export default function PublicFooter() {
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="hover:text-white transition-colors">Home</Link></li>
               <li><Link to="/booking/branch" className="hover:text-white transition-colors">Book a Court</Link></li>
-              <li><a href="#about" className="hover:text-white transition-colors">About Us</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><Link to="/admin/login" className="hover:text-white transition-colors">Admin Login</Link></li>
+              <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
+              <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-sm font-semibold text-white mb-4">Sports</h4>
             <ul className="space-y-2 text-sm">
-              <li><span className="hover:text-white transition-colors cursor-pointer">Football / Futsal</span></li>
-              <li><span className="hover:text-white transition-colors cursor-pointer">Cricket Nets</span></li>
-              <li><span className="hover:text-white transition-colors cursor-pointer">Badminton</span></li>
+              <li><button onClick={() => handleSportClick('Football / Futsal')} className="hover:text-white transition-colors cursor-pointer">Football / Futsal</button></li>
+              <li><button onClick={() => handleSportClick('Cricket Nets')} className="hover:text-white transition-colors cursor-pointer">Cricket Nets</button></li>
+              <li><button onClick={() => handleSportClick('Badminton')} className="hover:text-white transition-colors cursor-pointer">Badminton</button></li>
             </ul>
           </div>
 
@@ -66,7 +75,7 @@ export default function PublicFooter() {
         </div>
 
         <div className="border-t border-gray-800 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
-          <p>&copy; 2025 Lanka Futsal Hub. All rights reserved.</p>
+          <p>&copy; 2026 Lanka Futsal Hub. All rights reserved.</p>
           <p>Powered by <span className="text-brand-500 font-medium">Webtezza</span></p>
         </div>
       </div>

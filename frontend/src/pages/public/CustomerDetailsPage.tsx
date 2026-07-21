@@ -53,8 +53,7 @@ export default function CustomerDetailsPage() {
   const [endH, endM] = selectedSlot.endTime.split(':').map(Number);
   const durationMinutes = (endH * 60 + endM) - (startH * 60 + startM);
   const durationHours = durationMinutes / 60;
-  const pricePerHour = selectedSlot.price ?? selectedCourt.pricePerHour;
-  const courtFee = Math.round(pricePerHour * durationHours);
+  const courtFee = Math.round(selectedCourt.pricePerHour * durationHours);
   const platformFee = Math.round(PLATFORM_FEE_PER_HOUR * durationHours);
   const totalAmount = courtFee + platformFee;
 
@@ -94,8 +93,8 @@ export default function CustomerDetailsPage() {
         try {
           const initRes = await publicApi.initiatePayment(booking.id);
           setPayHereParams(initRes.data);
-        } catch {
-          toast.error('Payment gateway error. Please try again or choose Pay at Venue.');
+        } catch (payErr: any) {
+          toast.error(payErr.response?.data?.message || 'Payment gateway error. Please try again or choose Pay at Venue.');
           setRedirecting(false);
         }
       } else {

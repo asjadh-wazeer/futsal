@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { ArrowRight, MapPin, Clock, Shield, Star, ChevronRight, Zap, Search } from 'lucide-react';
+import { setPreferredSport } from '../../store/slices/bookingSlice';
 
 const sports = [
   {
@@ -38,6 +40,12 @@ const features = [
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleSelectSport = (sportName: string) => {
+    dispatch(setPreferredSport(sportName));
+    navigate('/booking/branch');
+  };
 
   return (
     <div>
@@ -97,7 +105,7 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {sports.map((sport) => (
-              <div key={sport.name} className="group card hover:shadow-card-hover transition-all duration-300 cursor-pointer relative overflow-hidden" onClick={() => navigate('/booking/branch')}>
+              <div key={sport.name} className="group card hover:shadow-card-hover transition-all duration-300 cursor-pointer relative overflow-hidden" onClick={() => handleSelectSport(sport.name)}>
                 <div className={`absolute top-0 right-0 w-24 h-24 rounded-bl-3xl bg-gradient-to-br ${sport.color} opacity-10 group-hover:opacity-20 transition-opacity`} />
                 <div className="flex items-start justify-between mb-4">
                   <span className="text-5xl">{sport.icon}</span>
